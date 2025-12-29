@@ -216,10 +216,6 @@ with gr.Blocks(title="Análisis Educativo") as app:
             with gr.Row(elem_classes="title-tab"):
                 gr.HTML("ANÁLISIS COMPARATIVO DE JURISDICCIONES EDUCATIVAS", elem_classes="title-text")
             
-        with gr.Tab("Teoría"):
-            with gr.Row(elem_classes="title-tab"):
-                gr.HTML("CONCEPTOS FUNDAMENTALES DE LA APLICACIÓN", elem_classes="title-text")
-            
         with gr.Tab("Proceso"):
             with gr.Row(elem_classes="title-tab"):
                 gr.HTML("FLUJOGRAMA DEL PROCESO", elem_classes="title-text")
@@ -319,6 +315,14 @@ with gr.Blocks(title="Análisis Educativo") as app:
                 gr.HTML("ANÁLISIS DE SERIES TEMPORALES MEDIANTE SERIES DE FOURIER", elem_classes="title-text")
         
         with gr.Tab("Probabilidad Bayesiana"):
+            with gr.Row(elem_classes="title-tab"):
+                gr.HTML("ANÁLISIS DE SERIES TEMPORALES MEDIANTE PROBABILIDAD BAYESIANA", elem_classes="title-text")
+        
+        with gr.Tab("Yael - Redes Neuronales"):
+            with gr.Row(elem_classes="title-tab"):
+                gr.HTML("ANÁLISIS DE SERIES TEMPORALES MEDIANTE PROBABILIDAD BAYESIANA", elem_classes="title-text")
+        
+        with gr.Tab("Marco - KNN & SVM"):
             with gr.Row(elem_classes="title-tab"):
                 gr.HTML("ANÁLISIS DE SERIES TEMPORALES MEDIANTE PROBABILIDAD BAYESIANA", elem_classes="title-text")
             
