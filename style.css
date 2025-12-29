@@ -1,38 +1,44 @@
-/* Definición de variables de color para fácil personalización */
+/* ============================================
+   PASTEL GRAYSCALE COLOR PALETTE
+   ============================================ */
 :root {
-    --input-bg-color: #FFFDE7;
-    /* Restaurado a amarillo muy suave */
-    /* Borde de inputs (Amarillo más oscuro) */
-    --input-border-color: #FDD835;
-    /* Color del texto */
-    --text-color: #000000;
-    /* Fondo del botón (Amarillo intenso/oro) */
-    --button-bg-color: #FFEB3B;
-    /* Fondo del botón al pasar el mouse */
-    --button-hover-bg-color: #FDD835;
-    /* Fondo de los contenedores principales */
-    --container-bg-color: #FFF176;
-    /* Fondo de los títulos de pestañas */
-    --title-bg-color: #aaff3b;
+    /* Background Colors */
+    --input-bg-color: #F5F5F5;
+    /* Very light gray for inputs */
+    --container-bg-color: #EBEBEB;
+    /* Light gray for containers */
+    --button-bg-color: #E0E0E0;
+    /* Medium-light gray for buttons */
+    --button-hover-bg-color: #BDBDBD;
+    /* Darker gray on hover */
+    --title-bg-color: #D6D6D6;
+    /* Medium gray for titles */
 
-    /* Variables de sombras */
-    --shadow-light: rgba(0, 0, 0, 0.1);
-    --shadow-medium: rgba(0, 0, 0, 0.15);
-    --shadow-strong: rgba(0, 0, 0, 0.3);
+    /* Border and Text Colors */
+    --input-border-color: #D3D3D3;
+    /* Medium gray for borders */
+    --text-color: #4A4A4A;
+    /* Dark gray for text */
+
+    /* Font Size Variables */
+    --font-size-small: 12px;
+    /* For data display */
+    --font-size-medium: 12px;
+    /* For buttons and options */
+    --font-size-large: 20px;
+    /* For titles */
+    --font-size-data: 12px;
+    /* For dropdown values and dataframe cells */
+
+    /* Shadow Variables */
+    --shadow-light: rgba(0, 0, 0, 0.06);
+    --shadow-medium: rgba(0, 0, 0, 0.10);
+    --shadow-strong: rgba(0, 0, 0, 0.15);
 }
 
-
-/* Estilos generales */
-.custom-input {
-    background-color: var(--input-bg-color) !important;
-    color: var(--text-color) !important;
-    border: 1px solid var(--input-border-color) !important;
-    /* Sombra explícita: 5px derecha, 5px abajo, difuminado, color oscuro */
-    box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.3) !important;
-    border-radius: 8px !important;
-}
-
-/* Para asegurar que el texto de las opciones sea legible y los títulos en negrita */
+/* ============================================
+   GENERAL TEXT STYLING
+   ============================================ */
 .custom-input span,
 .custom-input label,
 .custom-radio span,
@@ -42,7 +48,20 @@
     font-weight: bold !important;
 }
 
-/* Botones con efecto 3D más pronunciado */
+/* ============================================
+   INPUT FIELDS & DROPDOWNS
+   ============================================ */
+.custom-input {
+    background-color: var(--input-bg-color) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--input-border-color) !important;
+    box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.3) !important;
+    border-radius: 8px !important;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
 .custom-button {
     background-color: var(--button-bg-color) !important;
     color: var(--text-color) !important;
@@ -63,7 +82,9 @@
     box-shadow: 2px 2px 4px var(--shadow-strong) !important;
 }
 
-/* Radio buttons (Grupo de opciones) */
+/* ============================================
+   RADIO BUTTONS
+   ============================================ */
 .custom-radio {
     background-color: var(--input-bg-color) !important;
     padding: 10px !important;
@@ -71,29 +92,48 @@
     box-shadow: 3px 3px 5px var(--shadow-light) !important;
 }
 
-/* Dataframe */
-.custom-df {
-    background-color: var(--container-bg-color);
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 4px 4px 10px var(--shadow-medium);
-    font-weight: bold !important;
-    font-size: 24px !important;
-    color: var(--text-color) !important;
+/* Force vertical layout for radio buttons */
+.vertical-radio fieldset {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
 }
 
-/* Contenedores de pestañas o áreas principales */
+.vertical-radio label {
+    margin-bottom: 0 !important;
+}
+
+/* Ensure radio button options have same background as container */
+.custom-radio fieldset,
+.custom-radio .wrap,
+.custom-radio label,
+.custom-radio input[type="radio"]+label {
+    background-color: var(--input-bg-color) !important;
+}
+
+/* ============================================
+   CONTAINERS & BACKGROUNDS
+   ============================================ */
 .custom-tab-bg {
     background-color: var(--container-bg-color);
     border-radius: 10px;
     padding: 15px;
     box-shadow: 4px 4px 10px var(--shadow-medium);
     font-weight: bold !important;
-    font-size: 14px !important;
+    font-size: var(--font-size-medium) !important;
     color: var(--text-color) !important;
 }
 
-/* Contenedores para salida de datos */
+.custom-df {
+    background-color: var(--container-bg-color);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 4px 4px 10px var(--shadow-medium);
+    font-weight: bold !important;
+    font-size: var(--font-size-small) !important;
+    color: var(--text-color) !important;
+}
+
 .custom-output {
     background-color: var(--button-bg-color) !important;
     color: var(--text-color) !important;
@@ -101,15 +141,16 @@
     box-shadow: 4px 4px 8px var(--shadow-strong) !important;
     border-radius: 8px !important;
     font-weight: bold !important;
-    font-size: 18px !important;
+    font-size: var(--font-size-small) !important;
     height: 40px !important;
     width: 100% !important;
     text-align: left !important;
     padding: 10px !important;
-    /*margin: 10px !important;*/
 }
 
-/* Títulos de pestañas */
+/* ============================================
+   TITLES & HEADERS
+   ============================================ */
 .title-tab {
     background-color: var(--title-bg-color) !important;
     border: none !important;
@@ -117,21 +158,68 @@
     border-radius: 8px !important;
     height: 40px !important;
     width: 100% !important;
-    /*margin: 10px !important;*/
 }
 
 .title-text {
     font-weight: bold !important;
-    font-size: 22px !important;
+    font-size: var(--font-size-large) !important;
     color: var(--text-color) !important;
     text-align: left !important;
     padding-top: 3px !important;
     padding-left: 5px !important;
 }
 
-/* --- Info Display (Label next to button) --- */
-/* --- Info Display (Label styled as a badge) --- */
 .info-display {
     font-weight: bold !important;
-    font-size: 16px !important;
+    font-size: var(--font-size-medium) !important;
+}
+
+/* ============================================
+   NARROW COLUMN (LEFT SIDEBAR)
+   ============================================ */
+.narrow-column {
+    font-size: var(--font-size-medium) !important;
+}
+
+.narrow-column label,
+.narrow-column span,
+.narrow-column .block-label {
+    font-size: var(--font-size-medium) !important;
+}
+
+.narrow-column .custom-button {
+    font-size: var(--font-size-medium) !important;
+    padding: 6px 8px !important;
+}
+
+.narrow-column .custom-input,
+.narrow-column .custom-radio {
+    font-size: var(--font-size-medium) !important;
+}
+
+.narrow-column .info-display {
+    font-size: var(--font-size-medium) !important;
+}
+
+/* ============================================
+   DROPDOWN VALUES & DATAFRAME CELLS
+   ============================================ */
+/* Dropdown selected value and options */
+.custom-input input,
+.custom-input select,
+.custom-input .wrap,
+.custom-input .secondary-wrap {
+    font-size: var(--font-size-data) !important;
+}
+
+/* Dataframe table cells and content */
+table td,
+table th,
+.dataframe,
+.dataframe td,
+.dataframe th,
+.table-wrap table,
+.table-wrap td,
+.table-wrap th {
+    font-size: var(--font-size-data) !important;
 }

@@ -6,7 +6,7 @@ import os
 DATA_PATH = "./Datasets"
 FILE_MAP = {
     "Matrícula": "Matricula 2011-2024.csv",
-    "Matrícula por Edad": "Matricula por Edad 2011-2024.csv",
+    "Matr. por Edad": "Matricula por Edad 2011-2024.csv",
     "Población": "Poblacion 2011-2024.csv",
     "Trayectorias": "Trayectoria 2011-2024.csv"
 }
@@ -178,7 +178,7 @@ def filter_data(df, provincia, departamento, sector, ambito):
     # final_df = filtered # Mostrar todas las filas y todas las columnas
 
     # Information string
-    info_text = f"{provincia} - {departamento}: {len(filtered)} registros - {len(data_cols)} campos"
+    info_text = f"{provincia} - {departamento}: \n{len(filtered)} registros \n{len(data_cols)} campos"
     
     return stats, final_df, info_text
 
@@ -224,35 +224,31 @@ with gr.Blocks(title="Análisis Educativo") as app:
             with gr.Row(elem_classes="title-tab"):
                 gr.HTML("CONSULTA DE DATOS SOBRE JURISDICCIONES EDUCATIVAS", elem_classes="title-text")
             
-            with gr.Row(elem_classes="custom-tab-bg"):
-                tipo_consulta = gr.Radio(
-                    label="Tipo de Consulta", 
-                    choices=["Matrícula", "Matrícula por Edad", "Población", "Trayectorias"],
-                    value="Matrícula",
-                    elem_classes="custom-radio"
-                )
-            
-                with gr.Column():
+            with gr.Row():
+                with gr.Column(min_width=180, scale=1, elem_classes=["custom-tab-bg", "narrow-column"]):
+                    tipo_consulta = gr.Radio(
+                        label="Tipo de Consulta", 
+                        choices=["Matrícula", "Matr. por Edad", "Población", "Trayectorias"],
+                        value="Matrícula",
+                        elem_classes=["custom-radio", "vertical-radio"]
+                    )
+        
                     # Dropdowns
                     jurisdiccion = gr.Dropdown(label="Jurisdicción Educativa", choices=[], elem_classes="custom-input")
                     departamento = gr.Dropdown(label="Departamento", choices=[], elem_classes="custom-input")
             
-                with gr.Column():
-                    sector = gr.Radio(label="Sector", choices=["Estatal", "Privado", "Ambos"], value="Ambos", elem_classes="custom-radio")
-                    ambito = gr.Radio(label="Ámbito", choices=["Urbano", "Rural", "Ambos"], value="Ambos", elem_classes="custom-radio")
+                    sector = gr.Radio(label="Sector", choices=["Estatal", "Privado", "Ambos"], value="Ambos", elem_classes=["custom-radio", "vertical-radio"])
+                    ambito = gr.Radio(label="Ámbito", choices=["Urbano", "Rural", "Ambos"], value="Ambos", elem_classes=["custom-radio", "vertical-radio"])
                 
-                
-            with gr.Row():
-                # info_label ahora es un HTML con estilo propio
-                with gr.Column(elem_classes="custom-output"):
+                    # info_label ahora es un HTML con estilo propio
                     info_label = gr.HTML(value=" ", elem_classes="info-display")
-                btn_mostrar = gr.Button("Mostrar Datos", variant="primary", elem_classes="custom-button")
-            
-            with gr.Column(elem_classes="custom-tab-bg"):
-                gr.HTML(value="Estadísticas del Dataset", elem_classes="info-display")
-                stats_table = gr.Dataframe(interactive=False)
-                gr.HTML(value="Muestra del Dataset", elem_classes="info-display")
-                output_table = gr.Dataframe(interactive=False)
+                    btn_mostrar = gr.Button("Mostrar Datos", variant="primary", elem_classes="custom-button")
+        
+                with gr.Column(scale=20, elem_classes="custom-tab-bg"):
+                    gr.HTML(value="Estadísticas del Dataset", elem_classes="info-display")
+                    stats_table = gr.Dataframe(interactive=False)
+                    gr.HTML(value="Muestra del Dataset", elem_classes="info-display")
+                    output_table = gr.Dataframe(interactive=False)
 
             
             # --- Interactions ---
