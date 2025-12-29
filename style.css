@@ -21,9 +21,9 @@
     --font-size-data: 12px;
 
     /* Color para sombras */
-    --shadow-light: rgba(0, 0, 0, 0.06);
-    --shadow-medium: rgba(0, 0, 0, 0.10);
-    --shadow-strong: rgba(0, 0, 0, 0.15);
+    --shadow-light: rgba(240, 240, 240, 1);
+    --shadow-medium: rgba(220, 220, 220, 1);
+    --shadow-strong: rgba(200, 200, 200, 1);
 }
 
 
@@ -90,6 +90,7 @@
 }
 
 .vertical-radio label {
+    margin-top: 0 !important;
     margin-bottom: 0 !important;
 }
 
@@ -100,6 +101,7 @@
 .custom-radio label,
 .custom-radio input[type="radio"]+label {
     background-color: var(--input-bg-color) !important;
+    border: none !important;
 }
 
 
@@ -145,7 +147,7 @@
 
 /* ### OBLEA PARA TÍTULOS */
 .title-tab {
-    background-color: var(--title-bg-color) !important;
+    /* background-color: var(--title-bg-color) !important; */
     border: none !important;
     box-shadow: 4px 4px 8px var(--shadow-strong) !important;
     border-radius: 8px !important;

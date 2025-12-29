@@ -190,18 +190,32 @@ with open("style.css", "r", encoding="utf-8") as f:
 
 # Encode background image
 import base64
-image_path = "Images/Fondo_1.png"
-with open(image_path, "rb") as image_file:
-    encoded_string = base64.b64encode(image_file.read()).decode()
+image_path_bg = "Images/Fondo_1.png"
+with open(image_path_bg, "rb") as image_file:
+    encoded_bg = base64.b64encode(image_file.read()).decode()
+
+image_path_cont = "Images/Fondo_Contenedor.png"
+with open(image_path_cont, "rb") as image_file:
+    encoded_cont = base64.b64encode(image_file.read()).decode()
 
 css_content += f"""
     .gradio-container {{
-        /*background-image: url('data:image/png;base64,{encoded_string}') !important;*/
+        /*background-image: url('data:image/png;base64,{encoded_bg}') !important;*/
         background-size: cover !important;
         background-attachment: fixed !important;
         background-repeat: no-repeat !important;
         background-position: center !important;
     }}
+
+    .title-tab {{
+        background-image: url('data:image/png;base64,{encoded_cont}') !important;
+        border: none !important;
+        box-shadow: 4px 4px 8px var(--shadow-strong) !important;
+        border-radius: 8px !important;
+        height: 40px !important;
+        width: 100% !important;
+    }}
+
 """
 
 # --- UI Construction ---
@@ -214,15 +228,15 @@ with gr.Blocks(title="Análisis Educativo") as app:
     with gr.Tabs():
         with gr.Tab("Inicio"):
             with gr.Row(elem_classes="title-tab"):
-                gr.HTML("ANÁLISIS COMPARATIVO DE JURISDICCIONES EDUCATIVAS", elem_classes="title-text")
+                gr.HTML("&nbsp;&nbsp;ANÁLISIS COMPARATIVO DE JURISDICCIONES EDUCATIVAS", elem_classes="title-text")
             
         with gr.Tab("Proceso"):
             with gr.Row(elem_classes="title-tab"):
-                gr.HTML("FLUJOGRAMA DEL PROCESO", elem_classes="title-text")
+                gr.HTML("&nbsp;&nbsp;FLUJOGRAMA DEL PROCESO", elem_classes="title-text")
             
         with gr.Tab("Visualización de Datos"):
             with gr.Row(elem_classes="title-tab"):
-                gr.HTML("CONSULTA DE DATOS SOBRE JURISDICCIONES EDUCATIVAS", elem_classes="title-text")
+                gr.HTML("&nbsp;&nbsp;CONSULTA DE DATOS SOBRE JURISDICCIONES EDUCATIVAS", elem_classes="title-text")
             
             with gr.Row():
                 with gr.Column(min_width=180, scale=1, elem_classes=["custom-tab-bg", "narrow-column"]):
@@ -301,31 +315,31 @@ with gr.Blocks(title="Análisis Educativo") as app:
 
         with gr.Tab("Series Temporales"):
             with gr.Row(elem_classes="title-tab"):
-                gr.HTML("DEFINICIÓN DE LAS SERIES TEMPORALES A SER COMPARADAS", elem_classes="title-text")
+                gr.HTML("&nbsp;&nbsp;DEFINICIÓN DE LAS SERIES TEMPORALES A SER COMPARADAS", elem_classes="title-text")
             
         with gr.Tab("Series de Fourier"):
             with gr.Row(elem_classes="title-tab"):
-                gr.HTML("ANÁLISIS DE SERIES TEMPORALES MEDIANTE SERIES DE FOURIER", elem_classes="title-text")
+                gr.HTML("&nbsp;&nbsp;ANÁLISIS DE SERIES TEMPORALES MEDIANTE SERIES DE FOURIER", elem_classes="title-text")
 
         with gr.Tab("Yael - Bosques Aleatorios"):
             with gr.Row(elem_classes="title-tab"):
-                gr.HTML("ANÁLISIS DE INDICADORES EDUCATIVOS MEDIANTE BOSQUES ALEATORIOS", elem_classes="title-text")
+                gr.HTML("&nbsp;&nbsp;ANÁLISIS DE INDICADORES EDUCATIVOS MEDIANTE BOSQUES ALEATORIOS", elem_classes="title-text")
                 
         with gr.Tab("Marco - Probabilidad Bayesiana"):
             with gr.Row(elem_classes="title-tab"):
-                gr.HTML("ANÁLISIS DE SERIES TEMPORALES MEDIANTE PROBABILIDAD BAYESIANA", elem_classes="title-text")
+                gr.HTML("&nbsp;&nbsp;ANÁLISIS DE SERIES TEMPORALES MEDIANTE PROBABILIDAD BAYESIANA", elem_classes="title-text")
         
         with gr.Tab("Yael - Redes Neuronales"):
             with gr.Row(elem_classes="title-tab"):
-                gr.HTML("ANÁLISIS DE INDICADORES EDUCATIVOS MEDIANTE REDES NEURONALES", elem_classes="title-text")
+                gr.HTML("&nbsp;&nbsp;ANÁLISIS DE INDICADORES EDUCATIVOS MEDIANTE REDES NEURONALES", elem_classes="title-text")
         
         with gr.Tab("Marco - KNN & SVM"):
             with gr.Row(elem_classes="title-tab"):
-                gr.HTML("ANÁLISIS DE INDICADORES EDUCATIVOS CON K-NN Y SVM", elem_classes="title-text")
+                gr.HTML("&nbsp;&nbsp;ANÁLISIS DE INDICADORES EDUCATIVOS CON K-NN Y SVM", elem_classes="title-text")
             
         with gr.Tab("Conclusiones"):
             with gr.Row(elem_classes="title-tab"):
-                gr.HTML("CONCLUSIONES", elem_classes="title-text")
+                gr.HTML("&nbsp;&nbsp;CONCLUSIONES", elem_classes="title-text")
 
 if __name__ == "__main__":
     app.launch()
