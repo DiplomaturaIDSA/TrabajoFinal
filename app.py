@@ -116,6 +116,11 @@ def get_filtered_subset(df, provincia, departamento, sector, ambito):
     
     # Determine grouping columns and numeric columns
     group_cols = ['periodo', 'provincia', 'departamento']
+
+    # Special handling for 'grado' column (found in Matrícula por Edad)
+    # We want to group by it, not sum/concatenate it.
+    if 'grado' in filtered_df.columns:
+        group_cols.append('grado')
     
     # Add sector to grouping if not aggregating by sector
     if not need_sector_aggregation:
@@ -125,9 +130,13 @@ def get_filtered_subset(df, provincia, departamento, sector, ambito):
     if not need_ambito_aggregation:
         group_cols.append('ambito')
     
-    # Identify numeric columns (all columns except key columns)
+    # Identify numeric columns (all columns except key columns and 'grado')
     all_cols = filtered_df.columns.tolist()
-    numeric_cols = [col for col in all_cols if col not in KEY_COLUMNS]
+    # columns to exclude from summation
+    exclude_cols = set(KEY_COLUMNS)
+    exclude_cols.add('grado')
+    
+    numeric_cols = [col for col in all_cols if col not in exclude_cols]
     
     # Group and sum
     aggregated = filtered_df.groupby(group_cols, as_index=False)[numeric_cols].sum()
@@ -140,7 +149,11 @@ def get_filtered_subset(df, provincia, departamento, sector, ambito):
         aggregated['ambito'] = 'Ambos'
     
     # Reorder columns to match original structure
-    final_cols = KEY_COLUMNS + numeric_cols
+    final_cols = list(KEY_COLUMNS)
+    if 'grado' in aggregated.columns:
+        final_cols.append('grado')
+        
+    final_cols = final_cols + numeric_cols
     aggregated = aggregated[final_cols]
     
     return aggregated
