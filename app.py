@@ -110,10 +110,63 @@ def create_boxplot(df):
     for patch in box['boxes']:
         patch.set_facecolor('blue')
         
-    ax.set_title("Cantidad de Estudiantes por Categoría")
+    ax.set_title("Distribución de Estudiantes por Categoría")
     ax.yaxis.grid(True, linestyle='--', alpha=0.7)
     plt.xticks(rotation=90, fontsize=5)
     plt.tight_layout()
+    
+    return fig
+
+def create_evolution_chart(df):
+    if df is None or df.empty:
+        return None
+    
+    # Check for 'periodo' column
+    if 'periodo' not in df.columns:
+        return None
+
+    # Identify numeric columns for plotting (excluding 'periodo')
+    numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
+    cols_to_plot = [c for c in numeric_cols if c != 'periodo']
+    
+    if not cols_to_plot:
+        return None
+        
+    # Create figure - Adjusted for better screen fill and height
+    fig, ax = plt.subplots(figsize=(24, 8))
+    
+    # Sort by period just in case
+    df_sorted = df.sort_values('periodo')
+    x_data = df_sorted['periodo']
+    
+    # Plotting - Always Lines
+    for col in cols_to_plot:
+        ax.plot(x_data, df_sorted[col], label=col, marker='o')
+    
+    ax.set_title("Cantidad de Estudiantes por Categoría (2011-2024)")
+    ax.grid(True, linestyle='--', alpha=0.5)
+    
+    # Ensure all years are shown 2011-2024
+    years = range(2011, 2025)
+    ax.set_xticks(years)
+    ax.set_xlim(2010.5, 2024.5) # Slight padding to show points clearly
+    
+    # Handle Legend: Bottom, ~4 rows
+    # Calculate columns needed to fit in ~4 rows
+    # Calculate columns needed to fit in ~4 rows
+    # Ensure at least 1 column. 
+    n_vars = len(cols_to_plot)
+    n_cols = (n_vars + 3) // 4
+    if n_cols < 1: n_cols = 1
+    
+    # Position below the chart
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2),
+              fancybox=True, shadow=True, ncol=n_cols, fontsize='small')
+    
+    # Adjust layout to make room for legend at the bottom
+    plt.tight_layout() 
+    # Extra adjustment might be needed if tight_layout doesn't account for bbox_to_anchor outliers well,
+    # but usually it tries. If it cuts off, we might need fig.subplots_adjust(bottom=...)
     
     return fig
 
@@ -217,22 +270,14 @@ def filter_data(df, consulta_type, provincia, departamento, sector, ambito):
     filtered = get_filtered_subset(df, consulta_type, provincia, departamento, sector, ambito)
     
     if filtered.empty:
-        return pd.DataFrame(), pd.DataFrame(), "", None
+        return pd.DataFrame(), pd.DataFrame(), "", None, None
         
     # Calcular estadísticas del dataset FILTRADO
     stats = filtered.drop(columns=['periodo'], errors='ignore').describe().round(2).reset_index().rename(columns={'index': 'Medida'})
 
     all_cols = list(filtered.columns)
     
-    # Columns to show: exclude filtering keys to avoid redundancy if desired, 
-    # but user request history implied showing everything or specific logic.
-    # Previous logic was: data_cols = all_cols[0:1] + all_cols[5:]
-    # Now we want better dynamic handling.
-    # We will exclude the standard navigation keys from the main view if that's the goal, 
-    # OR follow the previous "everything after keys" logic.
-    # The keys are: provincia, departamento, sector, ambito.
-    # 'periodo' is usually kept. 'grado' should be kept.
-    
+    # Columns to show logic...
     cols_to_show = [c for c in all_cols if c not in ['provincia', 'departamento', 'sector', 'ambito']]
     
     final_df = filtered[cols_to_show] 
@@ -241,10 +286,13 @@ def filter_data(df, consulta_type, provincia, departamento, sector, ambito):
     ds_name = format_dataset_name(consulta_type)
     info_text = f"{ds_name} - {provincia} - {departamento}: {len(filtered)} registros - {len(cols_to_show)} campos"
     
-    # Generate Plot
-    fig = create_boxplot(final_df)
+    # Generate Boxplot
+    fig_boxplot = create_boxplot(final_df)
     
-    return stats, final_df, info_text, fig
+    # Generate Evolution Chart
+    fig_evolution = create_evolution_chart(final_df)
+    
+    return stats, final_df, info_text, fig_boxplot, fig_evolution
 
 # 1. Leer el contenido del CSS manualmente para asegurar compatibilidad
 # 1. Funcion para convertir imagen a Base64
@@ -337,8 +385,13 @@ with gr.Blocks(title="Análisis Educativo") as app:
                     gr.HTML(value="CONTENIDO DEL DATASET", elem_classes="info-display-1")
                     output_table = gr.Dataframe(interactive=False)
                     
-                    gr.HTML(value="GRÁFICO DE ESTUDIANTES POR CATEGORÍA", elem_classes="info-display-1")
-                    output_plot = gr.Plot(label="Distribución")
+                    with gr.Group(elem_classes="custom-tab-bg"):
+                        gr.HTML(value="DISTRIBUCIÓN DE ESTUDIANTES POR CATEGORÍA", elem_classes="info-display-1")
+                        output_plot = gr.Plot(label="Distribución")
+                    
+                    with gr.Group(elem_classes="custom-tab-bg"):
+                        gr.HTML(value="CANTIDAD DE ESTUDIANTES POR CATEGORÍA (PERÍODO 2011-2024)", elem_classes="info-display-1")
+                        output_plot_evolution = gr.Plot(label="Evolución")
 
             
             # --- Interactions ---
@@ -360,14 +413,14 @@ with gr.Blocks(title="Análisis Educativo") as app:
             btn_mostrar.click(
                 fn=filter_data,
                 inputs=[dataset_state, tipo_consulta, jurisdiccion, departamento, sector, ambito],
-                outputs=[stats_table, output_table, info_label, output_plot]
+                outputs=[stats_table, output_table, info_label, output_plot, output_plot_evolution]
             )
 
             # 4. Clear Outputs on Input Change AND Update Info Label
             def clear_outputs_and_update_info(df, consulta_type, prov, depto, sec, amb):
                 # Update info immediately
                 new_info = calculate_info(df, consulta_type, prov, depto, sec, amb)
-                return pd.DataFrame(), pd.DataFrame(), new_info, None
+                return pd.DataFrame(), pd.DataFrame(), new_info, None, None
 
             input_components = [jurisdiccion, departamento, sector, ambito]
             
@@ -376,14 +429,14 @@ with gr.Blocks(title="Análisis Educativo") as app:
                 comp.change(
                     fn=clear_outputs_and_update_info, 
                     inputs=[dataset_state, tipo_consulta, jurisdiccion, departamento, sector, ambito],
-                    outputs=[stats_table, output_table, info_label, output_plot]
+                    outputs=[stats_table, output_table, info_label, output_plot, output_plot_evolution]
                 )
 
             # Also for dataset change (clears everything)
             def clear_all():
-                return pd.DataFrame(), pd.DataFrame(), "", None
+                return pd.DataFrame(), pd.DataFrame(), "", None, None
                 
-            tipo_consulta.change(fn=clear_all, inputs=None, outputs=[stats_table, output_table, info_label, output_plot])
+            tipo_consulta.change(fn=clear_all, inputs=None, outputs=[stats_table, output_table, info_label, output_plot, output_plot_evolution])
             
             # Initial Load Trigger (Optional, to load the default selection)
             app.load(fn=on_dataset_change, inputs=[tipo_consulta], outputs=[dataset_state, jurisdiccion, departamento])

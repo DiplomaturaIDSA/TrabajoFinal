@@ -17,7 +17,7 @@
 
     --font-size-small: 10px;
     --font-size-medium: 12px;
-    --font-size-large: 20px;
+    --font-size-large: 30px;
     --font-size-data: 10px;
 
     /* Color para sombras */
@@ -183,6 +183,7 @@
 .info-display_1 {
     font-weight: bold !important;
     font-size: var(--font-size-large) !important;
+    margin-bottom: 10px !important;
 }
 
 
@@ -190,6 +191,7 @@
 .info-display_2 {
     font-weight: bold !important;
     font-size: var(--font-size-medium) !important;
+    margin-bottom: 10px !important;
 }
 
 
