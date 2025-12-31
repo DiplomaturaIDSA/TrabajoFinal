@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 # --- Constants ---
 DATA_PATH = "./Datasets"
 FILE_MAP = {
-    "Matrícula": "Matricula 2011-2024.csv",
-    "Matr. por Edad": "Matricula por Edad 2011-2024.csv",
-    "Población": "Poblacion 2011-2024.csv",
-    "Trayectorias": "Trayectoria 2011-2024.csv"
+    "Por Curso": "Matricula 2011-2024.csv",
+    "Por Edad": "Matricula por Edad 2011-2024.csv",
+    "Por Población": "Poblacion 2011-2024.csv",
+    "Por Trayectoria": "Trayectoria 2011-2024.csv"
 }
 
 KEY_COLUMNS = ['periodo', 'provincia', 'departamento', 'sector', 'ambito']
@@ -264,7 +264,8 @@ def calculate_info(df, consulta_type, provincia, departamento, sector, ambito):
     data_cols_count = max(0, len(filtered.columns) - 5)
     
     ds_name = format_dataset_name(consulta_type)
-    return f"{ds_name} - {provincia} - {departamento}: {len(filtered)} registros - {data_cols_count} campos"
+    # return f"{ds_name} - {provincia} - {departamento}: {len(filtered)} registros - {data_cols_count} campos"
+    return f" MATRÍCULA {consulta_type.upper()} - {provincia} - {departamento}: {len(filtered)} registros - {data_cols_count} campos"
 
 def filter_data(df, consulta_type, provincia, departamento, sector, ambito):
     filtered = get_filtered_subset(df, consulta_type, provincia, departamento, sector, ambito)
@@ -284,7 +285,8 @@ def filter_data(df, consulta_type, provincia, departamento, sector, ambito):
 
     # Information string
     ds_name = format_dataset_name(consulta_type)
-    info_text = f"{ds_name} - {provincia} - {departamento}: {len(filtered)} registros - {len(cols_to_show)} campos"
+    # info_text = f"{ds_name} - {provincia} - {departamento}: {len(filtered)} registros - {len(cols_to_show)} campos"
+    info_text = f" MATRÍCULA {consulta_type.upper()} - {provincia} - {departamento}: {len(filtered)} registros - {len(cols_to_show)} campos"
     
     # Generate Boxplot
     fig_boxplot = create_boxplot(final_df)
@@ -361,9 +363,9 @@ with gr.Blocks(title="Análisis Educativo") as app:
             with gr.Row():
                 with gr.Column(min_width=180, scale=1, elem_classes=["custom-tab-bg", "narrow-column"]):
                     tipo_consulta = gr.Radio(
-                        label="Tipo de Consulta", 
-                        choices=["Matrícula", "Matr. por Edad", "Población", "Trayectorias"],
-                        value="Matrícula",
+                        label="Tipo de Matrícula", 
+                        choices=["Por Curso", "Por Edad", "Por Población", "Por Trayectoria"],
+                        value="Por Curso",
                         elem_classes=["custom-radio", "vertical-radio"]
                     )
         
@@ -416,18 +418,23 @@ with gr.Blocks(title="Análisis Educativo") as app:
                 outputs=[stats_table, output_table, info_label, output_plot, output_plot_evolution]
             )
 
-            # 4. Clear Outputs on Input Change AND Update Info Label
-            def clear_outputs_and_update_info(df, consulta_type, prov, depto, sec, amb):
-                # Update info immediately
-                new_info = calculate_info(df, consulta_type, prov, depto, sec, amb)
-                return pd.DataFrame(), pd.DataFrame(), new_info, None, None
+            # 4. Auto-Update or Clear Logic
+            def auto_update_or_clear(df, consulta_type, prov, depto, sec, amb):
+                # Check if all required inputs are present
+                if prov and depto and sec and amb:
+                    # All present -> Execute filter_data logic completely
+                    return filter_data(df, consulta_type, prov, depto, sec, amb)
+                else:
+                    # Missing inputs -> Clear outputs but update info label if possible
+                    new_info = calculate_info(df, consulta_type, prov, depto, sec, amb)
+                    return pd.DataFrame(), pd.DataFrame(), new_info, None, None
 
             input_components = [jurisdiccion, departamento, sector, ambito]
             
             # Bind to inputs
             for comp in input_components:
                 comp.change(
-                    fn=clear_outputs_and_update_info, 
+                    fn=auto_update_or_clear, 
                     inputs=[dataset_state, tipo_consulta, jurisdiccion, departamento, sector, ambito],
                     outputs=[stats_table, output_table, info_label, output_plot, output_plot_evolution]
                 )
