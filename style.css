@@ -17,8 +17,9 @@
 
     --font-size-small: 10px;
     --font-size-medium: 12px;
-    --font-size-large: 30px;
+    --font-size-large: 20px;
     --font-size-data: 10px;
+    --font-size-info2: 18px;
 
     /* Color para sombras */
     --shadow-light: rgba(240, 240, 240, 1);
@@ -145,9 +146,9 @@
     border-radius: 10px;
     padding: 15px;
     box-shadow: var(--shadow-soft) !important;
-    font-weight: bold !important;
-    font-size: var(--font-size-small) !important;
-    color: var(--text-color) !important;
+    /* font-weight: bold !important;
+    /* font-size: var(--font-size-small) !important; */
+    /* color: var(--text-color) !important; */
 }
 
 
@@ -190,7 +191,7 @@
 /* ### TEXTO PARA CAMPOS INFORMATIVOS 2*/
 .info-display_2 {
     font-weight: bold !important;
-    font-size: var(--font-size-medium) !important;
+    font-size: var(--font-size-info2) !important;
     margin-bottom: 10px !important;
 }
 

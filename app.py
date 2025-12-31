@@ -112,7 +112,7 @@ def create_boxplot(df):
         
     ax.set_title("Distribución de Estudiantes por Categoría")
     ax.yaxis.grid(True, linestyle='--', alpha=0.7)
-    plt.xticks(rotation=90, fontsize=5)
+    plt.xticks(rotation=90, fontsize=6)
     plt.tight_layout()
     
     return fig
@@ -133,7 +133,7 @@ def create_evolution_chart(df):
         return None
         
     # Create figure - Adjusted for better screen fill and height
-    fig, ax = plt.subplots(figsize=(24, 8))
+    fig, ax = plt.subplots(figsize=(10, 6))
     
     # Sort by period just in case
     df_sorted = df.sort_values('periodo')
@@ -161,7 +161,7 @@ def create_evolution_chart(df):
     
     # Position below the chart
     ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2),
-              fancybox=True, shadow=True, ncol=n_cols, fontsize='small')
+              fancybox=False, shadow=False, ncol=n_cols, fontsize=8)
     
     # Adjust layout to make room for legend at the bottom
     plt.tight_layout() 
@@ -386,12 +386,12 @@ with gr.Blocks(title="Análisis Educativo") as app:
                     output_table = gr.Dataframe(interactive=False)
                     
                     with gr.Group(elem_classes="custom-tab-bg"):
-                        gr.HTML(value="DISTRIBUCIÓN DE ESTUDIANTES POR CATEGORÍA", elem_classes="info-display-1")
-                        output_plot = gr.Plot(label="Distribución")
+                        gr.HTML(value="", elem_classes="info-display-1")
+                        output_plot = gr.Plot()
                     
                     with gr.Group(elem_classes="custom-tab-bg"):
-                        gr.HTML(value="CANTIDAD DE ESTUDIANTES POR CATEGORÍA (PERÍODO 2011-2024)", elem_classes="info-display-1")
-                        output_plot_evolution = gr.Plot(label="Evolución")
+                        gr.HTML(value="", elem_classes="info-display-1")
+                        output_plot_evolution = gr.Plot()
 
             
             # --- Interactions ---
