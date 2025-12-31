@@ -68,15 +68,17 @@ def update_departamentos(consulta_type, provincia):
 def on_dataset_change(consulta_type):
     df, provincias = load_data(consulta_type)
     if df.empty:
-        return df, gr.update(choices=[]), gr.update(choices=[])
+        # Explicitly clear values even if empty
+        return df, gr.Dropdown(choices=[], value=None), gr.Dropdown(choices=[], value=None)
     
     # Sort for better UX
     provincias = sorted([str(p) for p in provincias])
-    return df, gr.update(choices=provincias, value=None), gr.update(choices=[], value=None)
+    # Use gr.Dropdown to force full component refresh with new choices and no value
+    return df, gr.Dropdown(choices=provincias, value=None), gr.Dropdown(choices=[], value=None)
 
 def on_provincia_change(df, provincia):
     if df is None or df.empty or not provincia:
-        return gr.update(choices=[])
+        return gr.update(choices=[], value=None)
     
     dptos = df[df['provincia'] == provincia]['departamento'].unique()
     dptos = sorted([str(d) for d in dptos])
@@ -281,7 +283,7 @@ def filter_data(df, consulta_type, provincia, departamento, sector, ambito):
     # Columns to show logic...
     cols_to_show = [c for c in all_cols if c not in ['provincia', 'departamento', 'sector', 'ambito']]
     
-    final_df = filtered[cols_to_show] 
+    final_df = filtered[cols_to_show].tail(8)
 
     # Information string
     ds_name = format_dataset_name(consulta_type)
@@ -332,7 +334,7 @@ extra_css = f"""
     background-image: url('data:image/png;base64,{fondo_titulo}') !important;
 }}
 
-.custom-tab-bg {{
+.custom-tab {{
     background-image: url('data:image/png;base64,{fondo_contenedor}') !important;
 }}
 """
@@ -361,38 +363,39 @@ with gr.Blocks(title="Análisis Educativo") as app:
                 gr.HTML("&nbsp;&nbsp;CONSULTA DE DATOS SOBRE JURISDICCIONES EDUCATIVAS", elem_classes="title-text")
             
             with gr.Row():
-                with gr.Column(min_width=180, scale=1, elem_classes=["custom-tab-bg", "narrow-column"]):
+                with gr.Column(min_width=180, scale=1, elem_classes="custom-tab"):
                     tipo_consulta = gr.Radio(
                         label="Tipo de Matrícula", 
                         choices=["Por Curso", "Por Edad", "Por Población", "Por Trayectoria"],
                         value="Por Curso",
-                        elem_classes=["custom-radio", "vertical-radio"]
+                        elem_classes="custom-radio"
                     )
         
                     # Dropdowns
-                    jurisdiccion = gr.Dropdown(label="Jurisdicción Educativa", choices=[], elem_classes="custom-input")
-                    departamento = gr.Dropdown(label="Departamento", choices=[], elem_classes="custom-input")
+                    jurisdiccion = gr.Dropdown(label="Provincia", choices=[], elem_classes="custom-dropdown")
+                    departamento = gr.Dropdown(label="Departamento", choices=[], elem_classes="custom-dropdown")
             
-                    sector = gr.Radio(label="Sector", choices=["Estatal", "Privado", "Ambos"], value="Ambos", elem_classes=["custom-radio", "vertical-radio"])
-                    ambito = gr.Radio(label="Ámbito", choices=["Urbano", "Rural", "Ambos"], value="Ambos", elem_classes=["custom-radio", "vertical-radio"])
+                    sector = gr.Radio(label="Sector", choices=["Estatal", "Privado", "Ambos"], value="Ambos", elem_classes="custom-radio")
+                    ambito = gr.Radio(label="Ámbito", choices=["Urbano", "Rural", "Ambos"], value="Ambos", elem_classes="custom-radio")
                 
-                    
                     btn_mostrar = gr.Button("Mostrar Datos", variant="primary", elem_classes="custom-button")
         
-                with gr.Column(scale=20, elem_classes="custom-tab-bg"):
-                    # info_label ahora es un HTML con estilo propio
-                    info_label = gr.HTML(value=" ", elem_classes="info-display-2")
-                    gr.HTML(value="ESTADÍSTICAS DEL DATASET", elem_classes="info-display-1")
-                    stats_table = gr.Dataframe(interactive=False)
-                    gr.HTML(value="CONTENIDO DEL DATASET", elem_classes="info-display-1")
-                    output_table = gr.Dataframe(interactive=False)
+                with gr.Column(scale=20):
+                    with gr.Row(elem_classes="custom-tab"):
+                        info_label = gr.HTML(value="", elem_classes="info-display-1")
+
+                    with gr.Row(elem_classes="custom-tab"):
+                        with gr.Column():
+                            gr.HTML(value="ESTADÍSTICAS DEL DATASET", elem_classes="info-display-2")
+                            stats_table = gr.Dataframe(interactive=False)
+                        with gr.Column():
+                            gr.HTML(value="CONTENIDO DEL DATASET", elem_classes="info-display-2")
+                            output_table = gr.Dataframe(interactive=False)
                     
-                    with gr.Group(elem_classes="custom-tab-bg"):
-                        gr.HTML(value="", elem_classes="info-display-1")
+                    with gr.Row(elem_classes="custom-tab"):
                         output_plot = gr.Plot()
                     
-                    with gr.Group(elem_classes="custom-tab-bg"):
-                        gr.HTML(value="", elem_classes="info-display-1")
+                    with gr.Row(elem_classes="custom-tab"):
                         output_plot_evolution = gr.Plot()
 
             
