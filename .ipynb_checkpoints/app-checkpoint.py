@@ -376,7 +376,7 @@ with gr.Blocks(title="Análisis Educativo") as app:
             
         with gr.Tab("Visualización de Datos"):
             with gr.Row(elem_classes="title-tab"):
-                gr.HTML("&nbsp;&nbsp;CONSULTA DE DATOS SOBRE JURISDICCIONES EDUCATIVAS", elem_classes="title-text")
+                gr.HTML("&nbsp;&nbsp;CONSULTA DE DATOS SOBRE provinciaES EDUCATIVAS", elem_classes="title-text")
             
             with gr.Row():
                 with gr.Column(min_width=180, scale=1, elem_classes="custom-tab"):
