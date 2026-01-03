@@ -2,7 +2,6 @@ import gradio as gr
 import pandas as pd
 import os
 import base64
-import matplotlib
 import matplotlib.pyplot as plt
 
 # --- Constantes ---
@@ -191,7 +190,6 @@ def get_filtered_subset(df, provincia, departamento, sector, ambito, key_columns
     final_cols = group_cols + numeric_cols
     return final_df[final_cols]
 
-
 def filter_data(df, dataset_type, provincia, departamento, sector, ambito):
     filtered = get_filtered_subset(df, provincia, departamento, sector, ambito, KEY_COLUMNS, True)
     
@@ -219,7 +217,6 @@ def filter_data(df, dataset_type, provincia, departamento, sector, ambito):
     fig_evolution = create_evolution_chart(final_df)
     
     return info_text, stats, final_df, fig_boxplot, fig_evolution
-
 
 # Funcion para convertir imagen a Base64
 def image_to_base64(image_path):
@@ -275,7 +272,6 @@ extra_css = f"""
 """
 
 custom_css = base_css + extra_css
-
 
 # INTERFACE GRADIO
 with gr.Blocks(title="Análisis Educativo") as app:
@@ -397,13 +393,11 @@ with gr.Blocks(title="Análisis Educativo") as app:
                 gr.HTML("&nbsp;&nbsp;CONCLUSIONES", elem_classes="title-text")
 
 if __name__ == "__main__":
-    # Obtenemos la ruta absoluta del directorio actual
+    # Ruta absoluta del directorio actual
     current_dir = os.path.dirname(os.path.abspath(__file__))
     
-    # Definimos la carpeta de imágenes
+    # Carpeta de imágenes
     images_folder = os.path.join(current_dir, "Images")
-    
-    # Verificación de existencia (Debug)
     if not os.path.exists(images_folder):
         print(f"Advertencia: La carpeta {images_folder} no existe.")
 
