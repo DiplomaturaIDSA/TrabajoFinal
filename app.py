@@ -3,10 +3,9 @@ import pandas as pd
 import os
 import base64
 import matplotlib
-matplotlib.use('Agg') # Non-interactive backend
 import matplotlib.pyplot as plt
 
-# --- Constants ---
+# --- Constantes ---
 DATA_PATH = "./Datasets"
 FILE_MAP = {
     "Por Curso": "Matricula 2011-2024.csv",
@@ -17,83 +16,52 @@ FILE_MAP = {
 
 KEY_COLUMNS = ['periodo', 'provincia', 'departamento', 'sector', 'ambito']
 
-# --- Global State ---
-# We store the currently loaded dataframe to avoid reloading on every interaction,
-# though for a multi-user web app this might need a different approach (like passing state).
-# For a local Gradio app, a global/closure variable or gr.State is fine.
-# We will use gr.State explicitly in the UI flow.
+# --- Dataframe Global ---
+# Se almacena el DataFrame actual para evitar recargarlo en cada interacción.
+# Para una aplicación local de Gradio, conviene utilizar gr.State() en la interfaz (UI).
 
-def get_file_path(consulta_type):
-    filename = FILE_MAP.get(consulta_type)
+def get_file_path(dataset_type):
+    filename = FILE_MAP.get(dataset_type)
     if not filename:
         return None
     return os.path.join(DATA_PATH, filename)
 
-def load_data(consulta_type):
-    path = get_file_path(consulta_type)
+def load_data(dataset_type):
+    path = get_file_path(dataset_type)
     if not path or not os.path.exists(path):
         return pd.DataFrame(), ["Archivo no encontrado"]
     
     try:
-        # Assuming standard CSV format. Adjust sep/encoding if needed after testing.
-        df = pd.read_csv(path, encoding='utf-8', sep=',') # Common defaults
+        df = pd.read_csv(path, encoding='utf-8', sep=',')
         return df, list(df['provincia'].unique())
     except Exception as e:
-        # Fallback for common encoding/separator issues
         try:
              df = pd.read_csv(path, encoding='latin1', sep=';')
              return df, list(df['provincia'].unique())
         except:
              return pd.DataFrame(), [f"Error cargando: {e}"]
 
-def update_departamentos(consulta_type, provincia):
-    path = get_file_path(consulta_type)
-    if not path or not os.path.exists(path):
-         return []
-    
-    # We reload or ideally keep it in memory. 
-    # To keep it simple and stateless between calls without gr.State being too complex initially:
-    # We'll read the file again or use a cached approach. 
-    # Given the requirements, let's try to load efficienty.
-    # Note: For better performance, we should pass the dataframe via gr.State.
-    
-    # However, this function is called by the Dropdown 'change' event.
-    # We need the dataframe. We will assume the dataframe is loaded in the 'Mostrar Datos' step?
-    # No, we need it for the dropdowns.
-    
-    # Strategy: Load data when 'Type' changes, output to a State component.
-    pass
-
-# Refined Logic with gr.State
-def on_dataset_change(consulta_type):
-    df, provincias = load_data(consulta_type)
+def on_dataset_change(dataset_type):
+    df, provincias = load_data(dataset_type)
     if df.empty:
-        # Explicitly clear values even if empty
-        return df, gr.Dropdown(choices=[], value=None), gr.Dropdown(choices=[], value=None)
+        return df, gr.update(choices=[], value=None), gr.update(choices=[], value=None), gr.update(value="Ambos"), gr.update(value="Ambos"), "", None, None, None, None
     
-    # Sort for better UX
-    provincias = sorted([str(p) for p in provincias])
-    # Use gr.Dropdown to force full component refresh with new choices and cleared value
-    # Clear both provincia and departamento when tipo de matrícula changes
-    return df, gr.update(choices=provincias, value=None), gr.update(choices=[], value=None), gr.update(value="Ambos"), gr.update(value="Ambos"), "", None, None, None, None
-                    
-                    
+    lista_provincias = sorted([str(p) for p in provincias])
+    return df, gr.update(choices=lista_provincias, value=None), gr.update(choices=[], value=None), gr.update(value="Ambos"), gr.update(value="Ambos"), "", None, None, None, None
+                                
 def on_provincia_change(df, provincia):
     if df is None or df.empty or not provincia:
-        # Explicitly clear departamento when no provincia is selected
-        return gr.Dropdown(choices=[], value=None)
+        return gr.update(choices=[], value="")
     
     dptos = df[df['provincia'] == provincia]['departamento'].unique()
-    dptos = sorted([str(d) for d in dptos])
-    # Clear departamento value and update choices when provincia changes
-    return gr.Dropdown(choices=dptos, value=None)
+    dptos_sorted = sorted([str(d) for d in dptos if d is not None])
+    return gr.update(choices=dptos_sorted, value=None, interactive=True)
 
 def create_boxplot(df):
     if df is None or df.empty:
         return None
     
-    # Identify numeric columns for plotting
-    # Exclude 'periodo' as it is a time reference
+    # Columnas numéricas para graficar, se excluye la columna "período"
     numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
     cols_to_plot = [c for c in numeric_cols if c != 'periodo']
     
@@ -102,17 +70,17 @@ def create_boxplot(df):
 
     fig, ax = plt.subplots(figsize=(10, 4))
     
-    # Extract data values handling potential NaNs
+    # Se excluyen los valores nan
     data_values = []
     headers = []
     for col in cols_to_plot:
         data_values.append(df[col].dropna())
         headers.append(col)
         
-    # Create boxplot
+    # Se crea el gráfico
     box = ax.boxplot(data_values, patch_artist=True, labels=headers, medianprops=dict(color="white", linewidth=1.5))
     
-    # Style: Celeste (lightblue)
+    # Cajas color celeste
     for patch in box['boxes']:
         patch.set_facecolor('blue')
         
@@ -127,190 +95,229 @@ def create_evolution_chart(df):
     if df is None or df.empty:
         return None
     
-    # Check for 'periodo' column
+    # Si no hay columna "período"
     if 'periodo' not in df.columns:
         return None
 
-    # Identify numeric columns for plotting (excluding 'periodo')
+    # Columnas numéricas para graficar, se excluye la columna "período"
     numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
     cols_to_plot = [c for c in numeric_cols if c != 'periodo']
     
     if not cols_to_plot:
         return None
         
-    # Create figure - Adjusted for better screen fill and height
+    # Se crea la figura para el gráfico
     fig, ax = plt.subplots(figsize=(10, 4))
     
-    # Sort by period just in case
+    # Se ordena por "período"
     df_sorted = df.sort_values('periodo')
     x_data = df_sorted['periodo']
     
-    # Plotting - Always Lines
+    # Gráfico de líneas con marcador de puntos
     for col in cols_to_plot:
         ax.plot(x_data, df_sorted[col], label=col, marker='o')
     
     ax.set_title("Cantidad de Estudiantes por Categoría (2011-2024)")
     ax.grid(True, linestyle='--', alpha=0.5)
     
-    # Ensure all years are shown 2011-2024
+    # Se muestran todos los años del período aunque no tengan datos
     years = range(2011, 2025)
     ax.set_xticks(years)
     ax.set_xlim(2010.5, 2024.5) # Slight padding to show points clearly
     
-    # Handle Legend: Bottom, ~4 rows
-    # Calculate columns needed to fit in ~4 rows
-    # Calculate columns needed to fit in ~4 rows
-    # Ensure at least 1 column. 
+    # Dimensiones de la leyenda
+    # Se calculan las columnas para que entren en 4 filas
     n_vars = len(cols_to_plot)
     n_cols = (n_vars + 3) // 4
     if n_cols < 1: n_cols = 1
     
-    # Position below the chart
+    # Leyenda debajo del gráfico
     ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2),
               fancybox=False, shadow=False, ncol=n_cols, fontsize=8)
     
-    # Adjust layout to make room for legend at the bottom
+    # Se ajusta el gráfico para que la leyenda se acomode correctamente
     plt.tight_layout() 
-    # Extra adjustment might be needed if tight_layout doesn't account for bbox_to_anchor outliers well,
-    # but usually it tries. If it cuts off, we might need fig.subplots_adjust(bottom=...)
     
     return fig
 
-def get_filtered_subset(df, consulta_type, provincia, departamento, sector, ambito):
+def get_filtered_subset_original(df, provincia, departamento, sector, ambito):
     if df is None or df.empty:
         return pd.DataFrame()
     
-    # Check if essential inputs are selected
+    # Si no se seleccionó provincia y departamento se retorna df vacío
     if not provincia or not departamento:
         return pd.DataFrame()
 
-    # Base filter: provincia and departamento
+    # 'base_filter" es un vector booleano
+    # Filtrado por provincia y departamento
     base_filter = (df['provincia'] == provincia) & (df['departamento'] == departamento)
+    # Filtrado por sector (si no es "Ambos")
+    if sector != 'Ambos':
+        base_filter = base_filter & (df['sector'] == sector)
+    # Filtrado por ámbito (si no es "Ambos")
+    if ambito != 'Ambos':
+        base_filter = base_filter & (df['ambito'] == ambito)
+
+    # Se determina si hay que sumar sector y/o ámbito
+    # need_sector_aggregation = (sector == "Ambos")
+    # need_ambito_aggregation = (ambito == "Ambos")
     
-    # Determine if we need to aggregate
-    need_sector_aggregation = (sector == "Ambos")
-    need_ambito_aggregation = (ambito == "Ambos")
+    # if not need_sector_aggregation and not need_ambito_aggregation:
+    #    final_filter = base_filter & (df['sector'] == sector) & (df['ambito'] == ambito)
+    #    return df[final_filter]
     
-    if not need_sector_aggregation and not need_ambito_aggregation:
-        # Simple case: no aggregation needed, just filter
-        final_filter = base_filter & (df['sector'] == sector) & (df['ambito'] == ambito)
-        return df[final_filter]
+    # Si hay que sumar sector o ámbito
+    # rows_filter = base_filter
     
-    # Build the filter for rows to include in aggregation
-    rows_filter = base_filter
+    # if not need_sector_aggregation:
+    #     rows_filter = rows_filter & (df['sector'] == sector)
     
-    if not need_sector_aggregation:
-        rows_filter = rows_filter & (df['sector'] == sector)
+    # if not need_ambito_aggregation:
+    #    rows_filter = rows_filter & (df['ambito'] == ambito)
     
-    if not need_ambito_aggregation:
-        rows_filter = rows_filter & (df['ambito'] == ambito)
+    # Filtrado con los campos agregados
+    # filtered_df = df[rows_filter].copy()
     
-    # Filter the dataframe
-    filtered_df = df[rows_filter].copy()
+    # if filtered_df.empty:
+    #    return pd.DataFrame()
     
-    if filtered_df.empty:
-        return pd.DataFrame()
-    
-    # Determine grouping columns and numeric columns
+    # Se aplica el filtro booleano a una copia del dataframe original
+    filtered_df = df[base_filter].copy()
+
+    # Columnas de agrupamiento
     group_cols = ['periodo', 'provincia', 'departamento']
 
-    # Special handling for 'grado' column (found in Matrícula por Edad)
-    # We want to group by it, not sum/concatenate it.
+    # La columna 'grado' (en Matrícula por Edad) debe agruparse, no concatenarse
     if 'grado' in filtered_df.columns:
         group_cols.append('grado')
     
-    # Add sector to grouping if not aggregating by sector
-    if not need_sector_aggregation:
-        group_cols.append('sector')
+    # Agregar sector al agrupamiento si no debe sumarse
+    # if not need_sector_aggregation:
+    #    group_cols.append('sector')
     
-    # Add ambito to grouping if not aggregating by ambito
-    if not need_ambito_aggregation:
-        group_cols.append('ambito')
+    # Agregar ámbito al agrupamiento si no debe sumarse
+    # if not need_ambito_aggregation:
+    #    group_cols.append('ambito')
     
-    # Identify numeric columns (all columns except key columns and 'grado')
+    # Identificar las columnas numpericas (exceptuando las columnas clave y grado)
     all_cols = filtered_df.columns.tolist()
-    # columns to exclude from summation
+    # Columnas que se excluyen en la suma
     exclude_cols = set(KEY_COLUMNS)
     exclude_cols.add('grado')
     
     numeric_cols = [col for col in all_cols if col not in exclude_cols]
     
-    # Group and sum
-    aggregated = filtered_df.groupby(group_cols, as_index=False)[numeric_cols].sum()
+    # Agrupar y sumar
+    aggregated_df = filtered_df.groupby(group_cols, as_index=False)[numeric_cols].sum()
     
-    # Add the aggregated columns back with "Ambos" label
-    if need_sector_aggregation:
-        aggregated['sector'] = 'Ambos'
+    # Las columnas agregadas se nombran como "Ambos"
+    # if need_sector_aggregation:
+    #     aggregated['sector'] = 'Ambos'
     
-    if need_ambito_aggregation:
-        aggregated['ambito'] = 'Ambos'
+    # if need_ambito_aggregation:
+    #     aggregated['ambito'] = 'Ambos'
     
-    # Reorder columns to match original structure
+    # Se reordenan las columnas como estaban originalmente 
     final_cols = list(KEY_COLUMNS)
-    if 'grado' in aggregated.columns:
+    if 'grado' in aggregated_df.columns:
         final_cols.append('grado')
         
     final_cols = final_cols + numeric_cols
-    aggregated = aggregated[final_cols]
+    aggregated_df = aggregated_df[final_cols]
     
-    return aggregated
+    return aggregated_df
 
-def format_dataset_name(name):
-    if not name: return ""
-    return name.upper().replace("MATR.", "MATRÍCULA")
 
-def calculate_info(df, consulta_type, provincia, departamento, sector, ambito):
-    if df is None or df.empty or not provincia or not departamento:
-        return ""
+def get_filtered_subset(df, provincia, departamento, sector, ambito, key_columns, agrupar_detalles=True):
+
+    if df is None or df.empty:
+        return pd.DataFrame() # Retorna DF vacío si no hay datos
+    
+    if not provincia or not departamento:
+        return pd.DataFrame()
+
+    # Filtrado inicial
+    res_df = df[(df['provincia'] == provincia) & (df['departamento'] == departamento)].copy()
+    
+    # Aplicación de filtros condicionales
+    if sector != 'Ambos':
+        res_df = res_df[res_df['sector'] == sector]
         
-    filtered = get_filtered_subset(df, consulta_type, provincia, departamento, sector, ambito)
-    
-    # Calculate visible data columns count (excluding key columns)
-    # Typically 5 key columns: periodo, provincia, departamento, sector, ambito
-    data_cols_count = max(0, len(filtered.columns) - 5)
-    
-    ds_name = format_dataset_name(consulta_type)
-    # return f"{ds_name} - {provincia} - {departamento}: {len(filtered)} registros - {data_cols_count} campos"
-    return f" MATRÍCULA {consulta_type.upper()} PARA {provincia} - {departamento}:  {len(filtered)} REGISTROS  -  {data_cols_count} CAMPOS"
+    if ambito != 'Ambos':
+        res_df = res_df[res_df['ambito'] == ambito]
 
-def filter_data(df, consulta_type, provincia, departamento, sector, ambito):
-    filtered = get_filtered_subset(df, consulta_type, provincia, departamento, sector, ambito)
+    if res_df.empty:
+        return pd.DataFrame(columns=df.columns) # Retorna estructura original vacía
+
+    # Si agrupar_detalles es True, forzamos la etiqueta 'Ambos' en las filas
+    if agrupar_detalles:
+        if sector == 'Ambos' and 'sector' in res_df.columns:
+            res_df['sector'] = 'Ambos'
+        if ambito == 'Ambos' and 'ambito' in res_df.columns:
+            res_df['ambito'] = 'Ambos'
+
+    # Definición de dimensiones de agrupación
+    group_cols = list(key_columns)
+    
+    # Añadimos dimensiones opcionales si existen en el DataFrame
+    for col in ['grado', 'sector', 'ambito']:
+        if col in res_df.columns and col not in group_cols:
+            group_cols.append(col)
+    
+    # Identificación de métricas (solo numéricas)
+    numeric_cols = [col for col in res_df.columns 
+                    if col not in group_cols and pd.api.types.is_numeric_dtype(res_df[col])]
+    
+    # Agregación
+    final_df = res_df.groupby(group_cols, as_index=False)[numeric_cols].sum()
+    
+    # Limpieza final para Gradio
+    # Gradio a veces tiene problemas con tipos de datos complejos o NaNs en la visualización
+    final_df = final_df.fillna(0)
+    
+    # Reordenar columnas para que las dimensiones precedan a las métricas
+    final_cols = group_cols + numeric_cols
+    return final_df[final_cols]
+
+
+def filter_data(df, dataset_type, provincia, departamento, sector, ambito):
+    filtered = get_filtered_subset(df, provincia, departamento, sector, ambito, KEY_COLUMNS, True)
     
     if filtered.empty:
-        return pd.DataFrame(), pd.DataFrame(), "", None, None
+        info_text = f" MATRÍCULA {dataset_type.upper()} PARA {provincia} - {departamento} (SECTOR {sector.upper()} - ÁMBITO {ambito.upper()}): SIN REGISTROS"
+        return info_text, pd.DataFrame(), pd.DataFrame(), None, None
         
-    # Calcular estadísticas del dataset FILTRADO
+    # Calcular estadísticas del dataset filtrado
     stats = filtered.drop(columns=['periodo'], errors='ignore').describe().round(2).reset_index().rename(columns={'index': 'Medida'})
 
     all_cols = list(filtered.columns)
     
-    # Columns to show logic...
-    cols_to_show = [c for c in all_cols if c not in ['provincia', 'departamento', 'sector', 'ambito']]
-    
-    final_df = filtered[cols_to_show].tail(8)
+    # Columnas para mostrar del dataset
+    # cols_to_show = [c for c in all_cols if c not in ['provincia', 'departamento', 'sector', 'ambito']]
+    cols_to_show = [c for c in all_cols if c not in ['sector', 'ambito']]
+    final_df = filtered[cols_to_show].tail(100)
 
-    # Information string
-    ds_name = format_dataset_name(consulta_type)
-    # info_text = f"{ds_name} - {provincia} - {departamento}: {len(filtered)} registros - {len(cols_to_show)} campos"
-    info_text = f" MATRÍCULA {consulta_type.upper()} PARA {provincia} - {departamento}: {len(filtered)} REGISTROS  -  {len(cols_to_show)} CAMPOS"
+    # Mensaje informativo sobre registros y campos
+    info_text = f" MATRÍCULA {dataset_type.upper()} PARA {provincia} - {departamento} (SECTOR {sector.upper()} - ÁMBITO {ambito.upper()}): {len(filtered)} REGISTROS  -  {len(cols_to_show)} CAMPOS"
     
-    # Generate Boxplot
+    # Generar gráfico de cajas
     fig_boxplot = create_boxplot(final_df)
     
-    # Generate Evolution Chart
+    # Generar gráfico de serie temporal
     fig_evolution = create_evolution_chart(final_df)
     
-    return stats, final_df, info_text, fig_boxplot, fig_evolution
+    return info_text, stats, final_df, fig_boxplot, fig_evolution
 
-# 1. Leer el contenido del CSS manualmente para asegurar compatibilidad
-# 1. Funcion para convertir imagen a Base64
+
+# Funcion para convertir imagen a Base64
 def image_to_base64(image_path):
     if not os.path.exists(image_path):
         return ""
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode('utf-8')
 
-# 2. Leer el contenido del CSS manualmente
+# Leer el contenido del CSS externo para agregar
+# las líneas correspondientes a las imágenes de fondo
 css_path = "style.css"
 if os.path.exists(css_path):
     with open(css_path, "r", encoding="utf-8") as f:
@@ -319,7 +326,7 @@ else:
     base_css = ""
     print("Advertencia: style.css no encontrado.")
 
-# 3. Codificar imágenes y agregar al CSS
+# Transformación de imágenes PNG a BASE64
 current_dir = os.path.dirname(os.path.abspath(__file__))
 img_path_1 = os.path.join(current_dir, "Images", "App_bg.png")
 img_path_2 = os.path.join(current_dir, "Images", "Title_bg.png")
@@ -331,6 +338,8 @@ fondo_titulo = image_to_base64(img_path_2)
 fondo_contenedor = image_to_base64(img_path_3)
 fondo_encabezado = image_to_base64(img_path_4)
 
+# Se agrega al CSS leído, las líneas de aplicación
+# de las imágenes de fondo en BASE64
 extra_css = f"""
 .gradio-container {{
     background-image: url('data:image/png;base64,{fondo_app}') !important;
@@ -356,7 +365,7 @@ extra_css = f"""
 custom_css = base_css + extra_css
 
 
-# --- UI Construction ---
+# INTERFACE GRADIO
 with gr.Blocks(title="Análisis Educativo") as app:
     gr.HTML(f"<style>{custom_css}</style>")
     
@@ -415,19 +424,12 @@ with gr.Blocks(title="Análisis Educativo") as app:
                         output_plot_evolution = gr.Plot()
 
             
-            # --- Interactions ---
-            # 1. Load Data on Type Change
             tipo_matricula.change(
                 fn=on_dataset_change,
                 inputs=[tipo_matricula],
                 outputs=[dataset_state, provincia, departamento, sector, ambito, info_label, stats_table, output_table, output_plot_box, output_plot_evolution]
             )
             
-            # 2. Update Departamentos on Provincia Change
-            # 2.a JS-side explicit clear to Ensure visual reset (Hybrid approach)
-            # provincia.change(fn=None, inputs=None, outputs=departamento, js="(val) => null")
-            
-            # 2.b Python-side update for choices
             provincia.change(
                 fn=on_provincia_change,
                 inputs=[dataset_state, provincia],
@@ -438,30 +440,30 @@ with gr.Blocks(title="Análisis Educativo") as app:
             btn_mostrar.click(
                 fn=filter_data,
                 inputs=[dataset_state, tipo_matricula, provincia, departamento, sector, ambito],
-                outputs=[stats_table, output_table, info_label, output_plot_box, output_plot_evolution]
+                outputs=[info_label, stats_table, output_table, output_plot_box, output_plot_evolution]
             )
 
             # 4. Auto-Update or Clear Logic
-            def auto_update_or_clear(df, consulta_type, prov, depto, sec, amb):
-                # Check if all required inputs are present
-                if prov and depto and sec and amb:
-                    # All present -> Execute filter_data logic completely
-                    return filter_data(df, consulta_type, prov, depto, sec, amb)
-                else:
-                    # Missing inputs -> Clear outputs but update info label if possible
-                    new_info = calculate_info(df, consulta_type, prov, depto, sec, amb)
-                    return pd.DataFrame(), pd.DataFrame(), new_info, None, None
+            #def auto_update_or_clear(df, dataset_type, prov, depto, sec, amb):
+            #    # Check if all required inputs are present
+            #    if prov and depto and sec and amb:
+            #        # All present -> Execute filter_data logic completely
+            #        return filter_data(df, dataset_type, prov, depto, sec, amb)
+            #    else:
+            #        # Missing inputs -> Clear outputs but update info label if possible
+            #        new_info = calculate_info(df, dataset_type, prov, depto, sec, amb)
+            #        return pd.DataFrame(), pd.DataFrame(), new_info, None, None
 
             # Exclude provincia from triggers to avoid race condition with clearing logic
-            input_components = [departamento, sector, ambito]
+            #input_components = [departamento, sector, ambito]
             
             # Bind to inputs
-            for comp in input_components:
-                comp.change(
-                    fn=auto_update_or_clear, 
-                    inputs=[dataset_state, tipo_matricula, provincia, departamento, sector, ambito],
-                    outputs=[stats_table, output_table, info_label, output_plot_box, output_plot_evolution]
-                )
+            #for comp in input_components:
+            #    comp.change(
+            #        fn=auto_update_or_clear, 
+            #        inputs=[dataset_state, tipo_matricula, provincia, departamento, sector, ambito],
+            #        outputs=[stats_table, output_table, info_label, output_plot_box, output_plot_evolution]
+            #    )
 
             # Also for dataset change (clears everything)
             # def clear_all():
@@ -469,15 +471,19 @@ with gr.Blocks(title="Análisis Educativo") as app:
                 
             # tipo_matricula.change(fn=clear_all, inputs=None, outputs=[provincia, departamento, stats_table, output_table, info_label, output_plot_box, output_plot_evolution])
             
-            # Initial Load Trigger (Optional, to load the default selection)
-            app.load(fn=on_dataset_change, inputs=[tipo_matricula], outputs=[dataset_state, provincia, departamento])
+            # Carga inicial del dataset por defecto
+            app.load(
+                fn=on_dataset_change, 
+                inputs=[tipo_matricula], 
+                outputs=[dataset_state, provincia, departamento, sector, ambito, info_label, stats_table, output_table, output_plot_box, output_plot_evolution]
+            )
 
         with gr.Tab("Series Temporales"):
             with gr.Row(elem_classes="title-tab"):
                 gr.HTML("&nbsp;&nbsp;DEFINICIÓN DE LAS SERIES TEMPORALES A SER COMPARADAS", elem_classes="title-text")
             
         with gr.Tab("Series de Fourier"):
-            with gr.Row(elem_classes="title-tab"):
+            with gr.Row(elem_classes="titleapp-tab"):
                 gr.HTML("&nbsp;&nbsp;ANÁLISIS DE SERIES TEMPORALES MEDIANTE SERIES DE FOURIER", elem_classes="title-text")
 
         with gr.Tab("Yael - Bosques Aleatorios"):
