@@ -140,94 +140,6 @@ def create_evolution_chart(df):
     
     return fig
 
-def get_filtered_subset_original(df, provincia, departamento, sector, ambito):
-    if df is None or df.empty:
-        return pd.DataFrame()
-    
-    # Si no se seleccionó provincia y departamento se retorna df vacío
-    if not provincia or not departamento:
-        return pd.DataFrame()
-
-    # 'base_filter" es un vector booleano
-    # Filtrado por provincia y departamento
-    base_filter = (df['provincia'] == provincia) & (df['departamento'] == departamento)
-    # Filtrado por sector (si no es "Ambos")
-    if sector != 'Ambos':
-        base_filter = base_filter & (df['sector'] == sector)
-    # Filtrado por ámbito (si no es "Ambos")
-    if ambito != 'Ambos':
-        base_filter = base_filter & (df['ambito'] == ambito)
-
-    # Se determina si hay que sumar sector y/o ámbito
-    # need_sector_aggregation = (sector == "Ambos")
-    # need_ambito_aggregation = (ambito == "Ambos")
-    
-    # if not need_sector_aggregation and not need_ambito_aggregation:
-    #    final_filter = base_filter & (df['sector'] == sector) & (df['ambito'] == ambito)
-    #    return df[final_filter]
-    
-    # Si hay que sumar sector o ámbito
-    # rows_filter = base_filter
-    
-    # if not need_sector_aggregation:
-    #     rows_filter = rows_filter & (df['sector'] == sector)
-    
-    # if not need_ambito_aggregation:
-    #    rows_filter = rows_filter & (df['ambito'] == ambito)
-    
-    # Filtrado con los campos agregados
-    # filtered_df = df[rows_filter].copy()
-    
-    # if filtered_df.empty:
-    #    return pd.DataFrame()
-    
-    # Se aplica el filtro booleano a una copia del dataframe original
-    filtered_df = df[base_filter].copy()
-
-    # Columnas de agrupamiento
-    group_cols = ['periodo', 'provincia', 'departamento']
-
-    # La columna 'grado' (en Matrícula por Edad) debe agruparse, no concatenarse
-    if 'grado' in filtered_df.columns:
-        group_cols.append('grado')
-    
-    # Agregar sector al agrupamiento si no debe sumarse
-    # if not need_sector_aggregation:
-    #    group_cols.append('sector')
-    
-    # Agregar ámbito al agrupamiento si no debe sumarse
-    # if not need_ambito_aggregation:
-    #    group_cols.append('ambito')
-    
-    # Identificar las columnas numpericas (exceptuando las columnas clave y grado)
-    all_cols = filtered_df.columns.tolist()
-    # Columnas que se excluyen en la suma
-    exclude_cols = set(KEY_COLUMNS)
-    exclude_cols.add('grado')
-    
-    numeric_cols = [col for col in all_cols if col not in exclude_cols]
-    
-    # Agrupar y sumar
-    aggregated_df = filtered_df.groupby(group_cols, as_index=False)[numeric_cols].sum()
-    
-    # Las columnas agregadas se nombran como "Ambos"
-    # if need_sector_aggregation:
-    #     aggregated['sector'] = 'Ambos'
-    
-    # if need_ambito_aggregation:
-    #     aggregated['ambito'] = 'Ambos'
-    
-    # Se reordenan las columnas como estaban originalmente 
-    final_cols = list(KEY_COLUMNS)
-    if 'grado' in aggregated_df.columns:
-        final_cols.append('grado')
-        
-    final_cols = final_cols + numeric_cols
-    aggregated_df = aggregated_df[final_cols]
-    
-    return aggregated_df
-
-
 def get_filtered_subset(df, provincia, departamento, sector, ambito, key_columns, agrupar_detalles=True):
 
     if df is None or df.empty:
@@ -294,8 +206,8 @@ def filter_data(df, dataset_type, provincia, departamento, sector, ambito):
     
     # Columnas para mostrar del dataset
     # cols_to_show = [c for c in all_cols if c not in ['provincia', 'departamento', 'sector', 'ambito']]
-    cols_to_show = [c for c in all_cols if c not in ['sector', 'ambito']]
-    final_df = filtered[cols_to_show].tail(100)
+    cols_to_show = [c for c in all_cols if c not in ['provincia', 'departamento']]
+    final_df = filtered[cols_to_show]
 
     # Mensaje informativo sobre registros y campos
     info_text = f" MATRÍCULA {dataset_type.upper()} PARA {provincia} - {departamento} (SECTOR {sector.upper()} - ÁMBITO {ambito.upper()}): {len(filtered)} REGISTROS  -  {len(cols_to_show)} CAMPOS"
@@ -412,10 +324,10 @@ with gr.Blocks(title="Análisis Educativo") as app:
                     with gr.Row(elem_classes="custom-tab"):
                         with gr.Column():
                             gr.HTML(value="ESTADÍSTICAS DEL DATASET", elem_classes="info-display-2")
-                            stats_table = gr.Dataframe(interactive=False)
+                            stats_table = gr.Dataframe(interactive=False, max_height=335)
                         with gr.Column():
                             gr.HTML(value="CONTENIDO DEL DATASET", elem_classes="info-display-2")
-                            output_table = gr.Dataframe(interactive=False)
+                            output_table = gr.Dataframe(interactive=False, max_height=335)
                     
                     with gr.Row(elem_classes="custom-tab"):
                         output_plot_box = gr.Plot()
@@ -436,42 +348,20 @@ with gr.Blocks(title="Análisis Educativo") as app:
                 outputs=[departamento]
             )
             
-            # 3. Filter and Show
             btn_mostrar.click(
                 fn=filter_data,
                 inputs=[dataset_state, tipo_matricula, provincia, departamento, sector, ambito],
                 outputs=[info_label, stats_table, output_table, output_plot_box, output_plot_evolution]
             )
 
-            # 4. Auto-Update or Clear Logic
-            #def auto_update_or_clear(df, dataset_type, prov, depto, sec, amb):
-            #    # Check if all required inputs are present
-            #    if prov and depto and sec and amb:
-            #        # All present -> Execute filter_data logic completely
-            #        return filter_data(df, dataset_type, prov, depto, sec, amb)
-            #    else:
-            #        # Missing inputs -> Clear outputs but update info label if possible
-            #        new_info = calculate_info(df, dataset_type, prov, depto, sec, amb)
-            #        return pd.DataFrame(), pd.DataFrame(), new_info, None, None
-
-            # Exclude provincia from triggers to avoid race condition with clearing logic
-            #input_components = [departamento, sector, ambito]
-            
-            # Bind to inputs
-            #for comp in input_components:
+            # input_components = [departamento, sector, ambito]
+            # for comp in input_components:
             #    comp.change(
-            #        fn=auto_update_or_clear, 
+            #        fn=filter_data, 
             #        inputs=[dataset_state, tipo_matricula, provincia, departamento, sector, ambito],
-            #        outputs=[stats_table, output_table, info_label, output_plot_box, output_plot_evolution]
+            #        outputs=[info_label, stats_table, output_table, output_plot_box, output_plot_evolution]
             #    )
 
-            # Also for dataset change (clears everything)
-            # def clear_all():
-            #     return None, None, pd.DataFrame(), pd.DataFrame(), "", None, None
-                
-            # tipo_matricula.change(fn=clear_all, inputs=None, outputs=[provincia, departamento, stats_table, output_table, info_label, output_plot_box, output_plot_evolution])
-            
-            # Carga inicial del dataset por defecto
             app.load(
                 fn=on_dataset_change, 
                 inputs=[tipo_matricula], 
