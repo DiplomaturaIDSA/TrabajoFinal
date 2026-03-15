@@ -1579,10 +1579,10 @@ def tab_ST_on_cult_select(dataset_type, serie, mg, tend, mm, sd):
                 ## Sección de ACF y PACF
                 # Información de filtros
                 gr.update(visible=False),
-                # Gráfico e interpretación de ACF
-                gr.Plot(visible=False), gr.update(visible=False),
-                # Gráfico e interpretación de PACF
-                gr.Plot(visible=False), gr.update(visible=False),
+                # Mensaje de error
+                gr.update(visible=False),
+                # Área de gráficos e info de ACF y PACF
+                gr.update(visible=False),
                 ## Sección ARIMA
                 # Variables de estado 'p' y 'q'
                 gr.update(value=NO_EXISTE), gr.update(value=NO_EXISTE),
@@ -1705,10 +1705,10 @@ def tab_ST_on_cult_select(dataset_type, serie, mg, tend, mm, sd):
                 ## Sección de ACF y PACF
                 # Información de filtros
                 msg,
-                # Gráfico e interpretación de ACF
-                gr.Plot(visible=False), gr.update(visible=False),
-                # Gráfico e interpretación de PACF
-                gr.Plot(visible=False), gr.update(visible=False),
+                # Mensaje de error
+                gr.update(visible=False),
+                # Área de gráficos e info de ACF y PACF
+                gr.update(visible=False),
                 ## Sección ARIMA
                 # Variables de estado 'p' y 'q'
                 gr.update(value=NO_EXISTE), gr.update(value=NO_EXISTE),
@@ -1791,10 +1791,10 @@ def tab_ST_on_prov_select(df, cultivo, provincia, indicador,
                 ## Sección de ACF y PACF
                 # Información de filtros
                 gr.update(visible=False),
-                # Gráfico e interpretación de ACF
-                gr.Plot(visible=False), gr.update(visible=False),
-                # Gráfico e interpretación de PACF
-                gr.Plot(visible=False), gr.update(visible=False),
+                # Mensaje de error
+                gr.update(visible=False),
+                # Área de gráficos e info de ACF y PACF
+                gr.update(visible=False),
                 ## Sección ARIMA
                 # Variables de estado 'p' y 'q'
                 gr.update(value=NO_EXISTE), gr.update(value=NO_EXISTE),
@@ -1880,10 +1880,10 @@ def tab_ST_on_prov_select(df, cultivo, provincia, indicador,
                 ## Sección de ACF y PACF
                 # Información de filtros
                 msg,
-                # Gráfico e interpretación de ACF
-                gr.Plot(visible=False), gr.update(visible=False),
-                # Gráfico e interpretación de PACF
-                gr.Plot(visible=False), gr.update(visible=False),
+                # Mensaje de error
+                gr.update(visible=False),
+                # Área de gráficos e info de ACF y PACF
+                gr.update(visible=False),
                 ## Sección ARIMA
                 # Variables de estado 'p' y 'q'
                 gr.update(value=NO_EXISTE), gr.update(value=NO_EXISTE),
@@ -1958,10 +1958,10 @@ def tab_ST_on_option_select(df, cultivo, provincia, departamento, indicador,
                 ## Sección de ACF y PACF
                 # Información de filtros
                 gr.update(visible=False),
-                # Gráfico e interpretación de ACF
-                gr.Plot(visible=False), gr.update(visible=False),
-                # Gráfico e interpretación de PACF
-                gr.Plot(visible=False), gr.update(visible=False),
+                # Mensaje de error
+                gr.update(visible=False),
+                # Área de gráficos e info de ACF y PACF
+                gr.update(visible=False),
                 ## Sección ARIMA
                 # Variables de estado 'p' y 'q'
                 gr.update(value=NO_EXISTE), gr.update(value=NO_EXISTE),
@@ -2045,10 +2045,10 @@ def tab_ST_on_option_select(df, cultivo, provincia, departamento, indicador,
                 ## Sección de ACF y PACF
                 # Información de filtros
                 msg,
-                # Gráfico e interpretación de ACF
-                gr.Plot(visible=False), gr.update(visible=False),
-                # Gráfico e interpretación de PACF
-                gr.Plot(visible=False), gr.update(visible=False),
+                # Mensaje de error
+                gr.update(visible=False),
+                # Área de gráficos e info de ACF y PACF
+                gr.update(visible=False),
                 ## Sección ARIMA
                 # Variables de estado 'p' y 'q'
                 gr.update(value=NO_EXISTE), gr.update(value=NO_EXISTE),
@@ -2984,20 +2984,21 @@ def tab_ST_ACF(df, indicador, grado_dif):
                 <strong style="color:#f57c00;"> ERROR EN EL ANÁLISIS:</strong><br>
                 La serie aún no fue diferenciada. Debe aplicarse la diferenciación (si corresponde) y 
                 la prueba ADF para verificar estacionariedad, para luego graficar
-                la FUNCIÓN DE AUTOCORRELACIÓN.</b></div>
+                la FUNCIÓN DE AUTOCORRELACIÓN y la FUNCIÓN DE AUTOCORRELACIÓN PARCIAL.</b></div>
             """
-        return None, reporte, NO_EXISTE
+        return reporte, None, None, NO_EXISTE
     
     # Se verifica que la serie sea estacionaria (NO_EXISTE = sin prueba ADF, no se verificó estacionariedad)
     if grado_dif == NO_EXISTE:
         reporte = """
             <div style="padding:15px; border:2px solid #ffa000; background-color:#fff9c4; border-radius:8px;">
                 <strong style="color:#f57c00;"> ERROR EN EL ANÁLISIS:</strong><br>
-                La serie debe ser estacionaria para que la función de AUTOCORRELACIÓN tenga relevancia estadística.
+                La serie debe ser estacionaria para que la FUNCIÓN DE AUTOCORRELACIÓN 
+                y la FUNCIÓN DE AUTOCORRELACIÓN PARCIAL tengan relevancia estadística.
                 Debe aplicarse previamente la prueba ADF para verificar estacionariedad 
                 y diferenciar la serie si corresponde.</div>
             """
-        return None, reporte, NO_EXISTE
+        return reporte, None, None, NO_EXISTE
 
     # Se convierte el nombre corto del  "indicador" a su nombre original
     ind_orig = next((k for k, v in dict_ncortos.items() if v == indicador), indicador)
@@ -3015,7 +3016,7 @@ def tab_ST_ACF(df, indicador, grado_dif):
         reporte = (f"<div style='font-size: 16px !important; color: #FF0000; font-weight: bold;'>"
                     f"El tamaño de la serie ({n_obs} observaciones) es demasiado pequeño "
                     f"para calcular la FUNCIÓN DE AUTOCORRELACIÓN.</div>")
-        return None, reporte, NO_EXISTE
+        return reporte, None, None, NO_EXISTE
 
     # En agricultura anual, un proceso MA superior a 5 años es improbable.
     max_horizonte = 5 
@@ -3060,7 +3061,7 @@ def tab_ST_ACF(df, indicador, grado_dif):
         f"años para evitar sobreajuste en series anuales de {n_obs} datos.</i>"
     )
     
-    return fig, reporte, q_sugerido
+    return None, fig, reporte, q_sugerido
 
 def tab_ST_PACF(df, indicador, grado_dif):
     """
@@ -3078,22 +3079,23 @@ def tab_ST_PACF(df, indicador, grado_dif):
         reporte = """
             <div style="padding:15px; border:2px solid #ffa000; background-color:#fff9c4; border-radius:8px;">
                 <strong style="color:#f57c00;"> ERROR EN EL ANÁLISIS:</strong><br>
-                "La serie aún no fue diferenciada. Debe aplicarse la diferenciación (si corresponde) y "
-                "la prueba ADF para verificar estacionariedad, para luego graficar "
-                "la FUNCIÓN DE AUTOCORRELACIÓN PARCIAL.</b></div>"
+                La serie aún no fue diferenciada. Debe aplicarse la diferenciación (si corresponde) y 
+                la prueba ADF para verificar estacionariedad, para luego graficar
+                la FUNCIÓN DE AUTOCORRELACIÓN y la FUNCIÓN DE AUTOCORRELACIÓN PARCIAL.</b></div>
             """
-        return None, reporte, NO_EXISTE
+        return reporte, None, None, NO_EXISTE
     
     # Se verifica que la serie sea estacionaria (NO_EXISTE = sin prueba ADF, no se verificó estacionariedad)
     if grado_dif == NO_EXISTE:
         reporte = """
             <div style="padding:15px; border:2px solid #ffa000; background-color:#fff9c4; border-radius:8px;">
                 <strong style="color:#f57c00;"> ERROR EN EL ANÁLISIS:</strong><br>
-                La serie debe ser estacionaria para que la función de AUTOCORRELACIÓN PARCIAL tenga relevancia estadística.
+                La serie debe ser estacionaria para que la FUNCIÓN DE AUTOCORRELACIÓN 
+                y la FUNCIÓN DE AUTOCORRELACIÓN PARCIAL tengan relevancia estadística.
                 Debe aplicarse previamente la prueba ADF para verificar estacionariedad 
                 y diferenciar la serie si corresponde.</div>
             """
-        return None, reporte, NO_EXISTE
+        return reporte, None, None, NO_EXISTE
     
     # Modificaciones similares a las aplicadas para ACF
     ind_orig = next((k for k, v in dict_ncortos.items() if v == indicador), indicador)
@@ -3109,7 +3111,7 @@ def tab_ST_PACF(df, indicador, grado_dif):
         reporte = (f"<div style='font-size: 16px !important; color: #FF0000; font-weight: bold;'>"
                     f"Muestra insuficiente: {n_obs} observaciones. "
                     f"No se puede calcular la FUNCIÓN DE AUTOCORRELACIÓN PARCIAL.</div>")
-        return None, reporte, NO_EXISTE
+        return reporte, None, None, NO_EXISTE
     
     # ywm = Yule-Walker modificado, ideal para series cortas
     valores_pacf = pacf(serie, nlags=lags_a_calcular, method='ywm')
@@ -3156,7 +3158,7 @@ def tab_ST_PACF(df, indicador, grado_dif):
         f"valores de p > 3 suelen indicar una tendencia mal corregida más que un patrón AR real.</i>"
     )
     
-    return fig, reporte, p_sugerido
+    return None, fig, reporte, p_sugerido
 
 def tab_ST_ACF_PACF_all(df1, df2, df3, var1, var2, var3, level1, level2, level3):
 
@@ -3164,37 +3166,44 @@ def tab_ST_ACF_PACF_all(df1, df2, df3, var1, var2, var3, level1, level2, level3)
     ### para que la función de autocorrelación y la función de autocorrelación parcial
     ### tengan relevancia estadística.
 
-    fig1a, desc1a, q1 = tab_ST_ACF(df1, var1, level1)
-    fig2a, desc2a, q2 = tab_ST_ACF(df2, var2, level2)
-    fig3a, desc3a, q3 = tab_ST_ACF(df3, var3, level3)
+    err1a, fig1a, desc1a, q1 = tab_ST_ACF(df1, var1, level1)
+    err2a, fig2a, desc2a, q2 = tab_ST_ACF(df2, var2, level2)
+    err3a, fig3a, desc3a, q3 = tab_ST_ACF(df3, var3, level3)
 
-    fig1b, desc1b, p1 = tab_ST_PACF(df1, var1, level1)
-    fig2b, desc2b, p2 = tab_ST_PACF(df2, var2, level2)
-    fig3b, desc3b, p3 = tab_ST_PACF(df3, var3, level3)
+    # Los mensajes de error de tab_ST_PACF() son los mismos que tab_ST_ACF()
+    err1a, fig1b, desc1b, p1 = tab_ST_PACF(df1, var1, level1)
+    err2a, fig2b, desc2b, p2 = tab_ST_PACF(df2, var2, level2)
+    err3a, fig3b, desc3b, p3 = tab_ST_PACF(df3, var3, level3)
 
-    return (# ACF de la Serie 1: gráfico, interpretación, q sugerido para ARIMA
+    return (# ACF de la Serie 1: mensaje de error, gráfico, interpretación, q sugerido para ARIMA
+            gr.update(value = err1a, visible = err1a is not None),
+            gr.update(visible = fig1a is not None), # Área de gráfico e info
             gr.update(value = fig1a, visible = fig1a is not None),
-            gr.update(value = desc1a, visible = True),
+            gr.update(value = desc1a, visible = desc1a is not None),
             q1,
-            # ACF de la Serie 2: gráfico, interpretación, q sugerido para ARIMA
+            # ACF de la Serie 2: mensaje de error, gráfico, interpretación, q sugerido para ARIMA
+            gr.update(value = err2a, visible = err2a is not None),
+            gr.update(visible = fig2a is not None), # Área de gráfico e info
             gr.update(value = fig2a, visible = fig2a is not None),
-            gr.update(value = desc2a, visible = True),
+            gr.update(value = desc2a, visible = desc2a is not None),
             q2,
-            # ACF de la Serie 3: gráfico, interpretación, q sugerido para ARIMA
+            # ACF de la Serie 3: mensaje de error, gráfico, interpretación, q sugerido para ARIMA
+            gr.update(value = err3a, visible = err3a is not None),
+            gr.update(visible = fig3a is not None), # Área de gráfico e info
             gr.update(value = fig3a, visible = fig3a is not None),
-            gr.update(value = desc3a, visible = True),
+            gr.update(value = desc3a, visible = desc3a is not None),
             q3,
-            # PACF de la Serie 1: gráfico, interpretación, p sugerido para ARIMA
+            # PACF de la Serie 1: mensaje de error, gráfico, interpretación, p sugerido para ARIMA
             gr.update(value = fig1b, visible = fig1b is not None),
-            gr.update(value = desc1b, visible = True),
+            gr.update(value = desc1b, visible = desc1b is not None),
             p1,
-            # PACF de la Serie 2: gráfico, interpretación, p sugerido para ARIMA
+            # PACF de la Serie 2: mensaje de error, gráfico, interpretación, p sugerido para ARIMA
             gr.update(value = fig2b, visible = fig2b is not None),
-            gr.update(value = desc2b, visible = True),
+            gr.update(value = desc2b, visible = desc2b is not None),
             p2,
-            # PACF de la Serie 3: gráfico, interpretación, p sugerido para ARIMA
+            # PACF de la Serie 3: mensaje de error, gráfico, interpretación, p sugerido para ARIMA
             gr.update(value = fig3b, visible = fig3b is not None),
-            gr.update(value = desc3b, visible = True),
+            gr.update(value = desc3b, visible = desc3b is not None),
             p3
             )
 
@@ -3390,10 +3399,8 @@ def tab_ST_on_level_change():
             gr.update(visible=False), # Estadísticos e informe de Prueba ADF
             gr.update(value=NO_EXISTE), # Variable para grado de dif. (NO_EXISTE = no estacionaria)
             ## Sección ACF y PACF
-            gr.Plot(visible=False), # Gráfico de ACF
-            gr.update(visible=False), # Informe de ACF
-            gr.Plot(visible=False), # Gráfico de PACF
-            gr.update(visible=False), # Informe de PACF
+            gr.update(visible=False), # Mensaje de error
+            gr.update(visible=False), # Área de gráficos e informes de ACF yde PACF
             gr.update(value=NO_EXISTE), # Variable 'p' de ARIMA
             gr.update(value=NO_EXISTE), # Variable 'q' de ARIMA
             ## Sección ARIMA
@@ -3429,7 +3436,7 @@ def tab_ST_ARIMA_all(df1, df2, df3, var1, var2, var3, p1, p2, p3, d1, d2, d3, q1
             # Informe de la serie 1
             gr.update(value = desc1, visible = True),
             # Area de la serie 1 (se hace visible si se generó el primer gráfico)
-            gr.update(value = fig1a, visible = fig1a is not None),
+            gr.update(visible = fig1a is not None),
             # Tablas y gráficos de la serie 1
             gr.update(value = fig1a, visible = fig1a is not None),
             gr.update(value = predic1, visible = True),
@@ -3441,7 +3448,7 @@ def tab_ST_ARIMA_all(df1, df2, df3, var1, var2, var3, p1, p2, p3, d1, d2, d3, q1
             # Informe de la serie 2
             gr.update(value = desc2, visible = True),
             # Area de la serie 2 (se hace visible si se generó el primer gráfico)
-            gr.update(value = fig2a, visible = fig2a is not None),
+            gr.update(visible = fig2a is not None),
             # Tablas y gráficos de la serie 1
             gr.update(value = fig2a, visible = fig2a is not None),
             gr.update(value = predic2, visible = True),
@@ -3453,7 +3460,7 @@ def tab_ST_ARIMA_all(df1, df2, df3, var1, var2, var3, p1, p2, p3, d1, d2, d3, q1
             # Informe de la serie 3
             gr.update(value = desc3, visible = True),
             # Area de la serie 3 (se hace visible si se generó el primer gráfico)
-            gr.update(value = fig3a, visible = fig3a is not None),
+            gr.update(visible = fig3a is not None),
             # Tablas y gráficos de la serie 1
             gr.update(value = fig3a, visible = fig3a is not None),
             gr.update(value = predic3, visible = True),
@@ -3889,11 +3896,40 @@ def tab_ST_ARIMA(df, indicador, p, d, q, n, graf=False):
                            row=1, col=1)
     
     # Histograma y Densidad
-    fig_residuos.add_trace(go.Histogram(x=residuos, 
-                                        nbinsx=30, 
-                                        name='Hist.', 
-                                        histnorm='probability density'), 
-                                        row=2, col=1)
+    # 1. Calcular parámetros para la curva normal teórica
+    residuos_mean = np.mean(residuos)
+    residuos_std = np.std(residuos)
+    x_range = np.linspace(min(residuos), max(residuos), 100)
+    norm_pie = stats.norm.pdf(x_range, residuos_mean, residuos_std)
+
+    # 2. Histograma
+    fig_residuos.add_trace(go.Histogram(
+        x=residuos, 
+        nbinsx=30, 
+        name='Histograma', 
+        histnorm='probability density',
+        marker_color='lightblue',
+        opacity=0.7
+    ), row=2, col=1)
+
+    # 3. Añadir curva Normal Teórica (Campana de Gauss)
+    fig_residuos.add_trace(go.Scatter(
+        x=x_range, 
+        y=norm_pie, 
+        mode='lines', 
+        name='Normal Teórica',
+        line=dict(color='red', width=2)
+    ), row=2, col=1)
+
+    # 4. Opcional: Añadir KDE (Densidad empírica real)
+    kde = stats.gaussian_kde(residuos)
+    fig_residuos.add_trace(go.Scatter(
+        x=x_range, 
+        y=kde(x_range), 
+        mode='lines', 
+        name='KDE (Real)',
+        line=dict(color='black', dash='dash')
+    ), row=2, col=1)
     
     # Probabilidad Normal
     qq = stats.probplot(residuos, dist="norm")
@@ -3909,11 +3945,41 @@ def tab_ST_ARIMA(df, indicador, p, d, q, n, graf=False):
                                       row=3, col=1)
 
     # Correlograma
+    # 1. Calcular el ACF y el intervalo de confianza
+    n = len(residuos)
     acf_res = sm.tsa.stattools.acf(residuos, nlags=20)
-    fig_residuos.add_trace(go.Bar(x=list(range(len(acf_res))), 
-                                  y=acf_res, 
-                                  name='ACF Residuos'), 
-                                  row=4, col=1)
+    # Umbral de significancia al 95% (aprox. 1.96 desviaciones estándar)
+    conf_interval = 1.96 / np.sqrt(n)
+    # 2. Agregar las barras del ACF (Tu código base)
+    fig_residuos.add_trace(go.Bar(
+        x=list(range(len(acf_res))), 
+        y=acf_res, 
+        name='ACF Residuos',
+        marker_color='royalblue'
+    ), row=4, col=1)
+    # 3. Agregar línea de significancia superior
+    fig_residuos.add_hline(
+        y=conf_interval, 
+        line_dash="dash", 
+        line_color="red", 
+        line_width=1,
+        row=4, col=1
+    )
+    # 4. Agregar línea de significancia inferior
+    fig_residuos.add_hline(
+        y=-conf_interval, 
+        line_dash="dash", 
+        line_color="red", 
+        line_width=1,
+        row=4, col=1
+    )
+    # 5. Agregar una región sombreada para mejor visualización
+    fig_residuos.add_hrect(
+        y0=-conf_interval, y1=conf_interval, 
+        fillcolor="rgba(255, 0, 0, 0.1)", 
+        line_width=0,
+        row=4, col=1
+    )
 
     # Área de graficación
     fig_residuos.update_layout(height=1000, 
@@ -4299,10 +4365,10 @@ def tab_ST_imputar_df(df, imp_option, indicador, serie, mg, tend, mm, sd):
                 ## Sección de ACF y PACF
                 # Información de filtros
                 gr.update(),
-                # Gráfico e interpretación de ACF
-                gr.Plot(visible=False), gr.update(visible=False),
-                # Gráfico e interpretación de PACF
-                gr.Plot(visible=False), gr.update(visible=False),
+                # Mensaje de error
+                gr.update(visible=False),
+                # Área de gráficos e info de ACF y PACF
+                gr.update(visible=False),
                 ## Sección ARIMA
                 # Variables de estado 'p' y 'q'
                 gr.update(value=NO_EXISTE), gr.update(value=NO_EXISTE),
@@ -4382,10 +4448,10 @@ def tab_ST_restaurar_df(df, cultivo, provincia, departamento,
                 ## Sección de ACF y PACF
                 # Información de filtros
                 gr.update(),
-                # Gráfico e interpretación de ACF
-                gr.Plot(visible=False), gr.update(visible=False),
-                # Gráfico e interpretación de PACF
-                gr.Plot(visible=False), gr.update(visible=False),
+                # Mensaje de error
+                gr.update(visible=False),
+                # Área de gráficos e info de ACF y PACF
+                gr.update(visible=False),
                 ## Sección ARIMA
                 # Variables de estado 'p' y 'q'
                 gr.update(value=NO_EXISTE), gr.update(value=NO_EXISTE),
@@ -4450,10 +4516,10 @@ def tab_ST_cortar_df(df, indicador, yinicial, yfinal, serie, mg, tend, mm, sd):
                 ## Sección de ACF y PACF
                 # Información de filtros
                 gr.update(),
-                # Gráfico e interpretación de ACF
-                gr.Plot(visible=False), gr.update(visible=False),
-                # Gráfico e interpretación de PACF
-                gr.Plot(visible=False), gr.update(visible=False),
+                # Mensaje de error
+                gr.update(visible=False),
+                # Área de gráficos e info de ACF y PACF
+                gr.update(visible=False),
                 ## Sección ARIMA
                 # Variables de estado 'p' y 'q'
                 gr.update(value=NO_EXISTE), gr.update(value=NO_EXISTE),
@@ -4515,10 +4581,10 @@ def tab_ST_cortar_df(df, indicador, yinicial, yfinal, serie, mg, tend, mm, sd):
                 ## Sección de ACF y PACF
                 # Información de filtros
                 gr.update(),
-                # Gráfico e interpretación de ACF
-                gr.Plot(visible=False), gr.update(visible=False),
-                # Gráfico e interpretación de PACF
-                gr.Plot(visible=False), gr.update(visible=False),
+                # Mensaje de error
+                gr.update(visible=False),
+                # Área de gráficos e info de ACF y PACF
+                gr.update(visible=False),
                 ## Sección ARIMA
                 # Variables de estado 'p' y 'q'
                 gr.update(value=NO_EXISTE), gr.update(value=NO_EXISTE),
@@ -6308,36 +6374,83 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                         ACF_PACF_button = gr.Button("Calcular", variant="primary", visible=True, 
                                                 elem_classes="custom-button3")
 
-                with gr.Row(elem_classes="custom-tab"):
-                    with gr.Column():
-                        with gr.Row():
-                            ACF_desc1 = gr.HTML("Debe seleccionarse la Serie 1", elem_classes="info-display-3")
-                        with gr.Row():
-                            with gr.Column():                        
+                with gr.Column(elem_classes="custom-tab"):
+                    with gr.Row():
+                        ACF_desc1 = gr.HTML("Debe seleccionarse la Serie 1", elem_classes="info-display-3")
+                        ACF_desc2 = gr.HTML("Debe seleccionarse la Serie 2", elem_classes="info-display-3")
+                        ACF_desc3 = gr.HTML("Debe seleccionarse la Serie 3", elem_classes="info-display-3")
+
+                    with gr.Row():
+                        with gr.Column():
+                            ACF_error1 = gr.HTML("Mensaje de Error", visible=False)
+                            with gr.Column(visible=False) as ACF_serie_1:
                                 ACF_graph1 = gr.Plot(show_label=False, visible=False)
+                                with gr.Row():
+                                    gr.HTML("<div style='flex-grow: 1;'></div>")
+                                    ACF_btn_help1 = gr.Button("?", variant="primary", 
+                                                    elem_classes="custom-button6",
+                                                    min_width=1, scale=0)
                                 ACF_info1 = gr.HTML("Interpretación ACF", visible=False)
                                 PACF_graph1 = gr.Plot(show_label=False, visible=False)
+                                with gr.Row():
+                                    gr.HTML("<div style='flex-grow: 1;'></div>")
+                                    PACF_btn_help1 = gr.Button("?", variant="primary", 
+                                                    elem_classes="custom-button6",
+                                                    min_width=1, scale=0)
                                 PACF_info1 = gr.HTML("Interpretación PACF", visible=False)
 
-                    with gr.Column():
-                        with gr.Row():
-                            ACF_desc2 = gr.HTML("Debe seleccionarse la Serie 2", elem_classes="info-display-3")
-                        with gr.Row():
-                            with gr.Column():
+                        with gr.Column():
+                            ACF_error2 = gr.HTML("Mensaje de Error", visible=False)
+                            with gr.Column(visible=False) as ACF_serie_2:
                                 ACF_graph2 = gr.Plot(show_label=False, visible=False)
+                                with gr.Row():
+                                    gr.HTML("<div style='flex-grow: 1;'></div>")
+                                    ACF_btn_help2 = gr.Button("?", variant="primary", 
+                                                    elem_classes="custom-button6",
+                                                    min_width=1, scale=0)
                                 ACF_info2 = gr.HTML("Interpretación ACF", visible=False)
                                 PACF_graph2 = gr.Plot(show_label=False, visible=False)
+                                with gr.Row():
+                                    gr.HTML("<div style='flex-grow: 1;'></div>")
+                                    PACF_btn_help2 = gr.Button("?", variant="primary", 
+                                                    elem_classes="custom-button6",
+                                                    min_width=1, scale=0)
                                 PACF_info2 = gr.HTML("Interpretación PACF", visible=False)
 
-                    with gr.Column():
-                        with gr.Row():
-                            ACF_desc3 = gr.HTML("Debe seleccionarse la Serie 3", elem_classes="info-display-3")
-                        with gr.Row():
-                            with gr.Column():
+                        with gr.Column():
+                            ACF_error3 = gr.HTML("Mensaje de Error", visible=False)
+                            with gr.Column(visible=False) as ACF_serie_3:
                                 ACF_graph3 = gr.Plot(show_label=False, visible=False)
+                                with gr.Row():
+                                    gr.HTML("<div style='flex-grow: 1;'></div>")
+                                    ACF_btn_help3 = gr.Button("?", variant="primary", 
+                                                    elem_classes="custom-button6",
+                                                    min_width=1, scale=0)
                                 ACF_info3 = gr.HTML("Interpretación ACF", visible=False)
                                 PACF_graph3 = gr.Plot(show_label=False, visible=False)
+                                with gr.Row():
+                                    gr.HTML("<div style='flex-grow: 1;'></div>")
+                                    PACF_btn_help3 = gr.Button("?", variant="primary", 
+                                                    elem_classes="custom-button6",
+                                                    min_width=1, scale=0)
                                 PACF_info3 = gr.HTML("Interpretación PACF", visible=False)
+
+                # --- MODAL: AYUDA GRÁFICO ACF ---
+                with gr.Column(visible=False) as ACF_modal_help:
+                    with gr.Column(elem_classes="overlay"):
+                        pass # Solo para el fondo oscuro
+                    with gr.Column(elem_classes="modal-ayuda"):
+                        gr.HTML(load_html("assets/ACF_Grafico.html"))
+                        ACF_btn_cerrar_help = gr.Button("Cerrar", variant="primary", elem_classes="custom-button9")
+                
+                # --- MODAL: AYUDA GRÁFICO PACF ---
+                with gr.Column(visible=False) as PACF_modal_help:
+                    with gr.Column(elem_classes="overlay"):
+                        pass # Solo para el fondo oscuro
+                    with gr.Column(elem_classes="modal-ayuda"):
+                        gr.HTML(load_html("assets/PACF_Grafico.html"))
+                        PACF_btn_cerrar_help = gr.Button("Cerrar", variant="primary", elem_classes="custom-button9")
+                
             # endregion SUBPESTAÑA 5: CÁLCULO DE AUTOCORRELACIONES DE LAS SERIES
 
             # region SUBPESTAÑA 6: APLICACIÓN DEL MODELO ARIMA
@@ -6361,8 +6474,8 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                 with gr.Column(elem_classes="custom-tab"):
                     with gr.Row():
                         ARIMA_desc1 = gr.HTML("Debe seleccionarse la Serie 1", elem_classes="info-display-3")
-                        ARIMA_desc2 = gr.HTML("Debe seleccionarse la Serie 1", elem_classes="info-display-3")
-                        ARIMA_desc3 = gr.HTML("Debe seleccionarse la Serie 1", elem_classes="info-display-3")
+                        ARIMA_desc2 = gr.HTML("Debe seleccionarse la Serie 2", elem_classes="info-display-3")
+                        ARIMA_desc3 = gr.HTML("Debe seleccionarse la Serie 3", elem_classes="info-display-3")
                     
                     with gr.Row():
                         with gr.Column():
@@ -6597,6 +6710,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
             # endregion SUBPESTAÑA 7: TRANSFORMADAS DE FOURIER
 
             # region EVENTOS DE COMPONENTES DE LA PESTAÑA SERIES TEMPORALES
+            
             cult1.select(
                 fn = tab_ST_on_cult_select,
                 inputs = [cult1, graph_serie, graph_mg, graph_tend, graph_mm, graph_sd],
@@ -6610,8 +6724,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             STL_desc1, STL_serie_1, STL_info1,
                             HW_desc1, HW_serie_1, HW_info1,
                             ADF_desc1, leveldiff1, level_diff_state_1, diff_graph1, ADF_info1,
-                            ACF_desc1, ACF_graph1, ACF_info1,
-                            PACF_graph1, PACF_info1,
+                            ACF_desc1, ACF_error1, ACF_serie_1,
                             ARIMA_p_1, ARIMA_q_1,
                             ARIMA_desc1, ARIMA_info1, ARIMA_serie_1,
                             Fourier_desc1, Fourier_series_orig, Fourier_series_dif,
@@ -6631,8 +6744,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             STL_desc2, STL_serie_2, STL_info2,
                             HW_desc2, HW_serie_2, HW_info2,
                             ADF_desc2, leveldiff2, level_diff_state_2, diff_graph2, ADF_info2,
-                            ACF_desc2, ACF_graph2, ACF_info2,
-                            PACF_graph2, PACF_info2,
+                            ACF_desc2, ACF_error2, ACF_serie_2,
                             ARIMA_p_2, ARIMA_q_2,
                             ARIMA_desc2, ARIMA_info2, ARIMA_serie_2,
                             Fourier_desc2, Fourier_series_orig, Fourier_series_dif,
@@ -6652,8 +6764,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             STL_desc3, STL_serie_3, STL_info3,
                             HW_desc3, HW_serie_3, HW_info3,
                             ADF_desc3, leveldiff3, level_diff_state_3, diff_graph3, ADF_info3,
-                            ACF_desc3, ACF_graph3, ACF_info3,
-                            PACF_graph3, PACF_info3,
+                            ACF_desc3, ACF_error3, ACF_serie_3,
                             ARIMA_p_3, ARIMA_q_3,
                             ARIMA_desc3, ARIMA_info3, ARIMA_serie_3,
                             Fourier_desc3, Fourier_series_orig, Fourier_series_dif,
@@ -6673,8 +6784,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc1, HW_serie_1, HW_info1,
                             ADF_desc1, leveldiff1, diff_graph1, ADF_info1,
                             level_diff_state_1,
-                            ACF_desc1, ACF_graph1, ACF_info1,
-                            PACF_graph1, PACF_info1,
+                            ACF_desc1, ACF_error1, ACF_serie_1,
                             ARIMA_p_1, ARIMA_q_1,
                             ARIMA_desc1, ARIMA_info1, ARIMA_serie_1,
                             Fourier_desc1, Fourier_series_orig, Fourier_series_dif,
@@ -6694,8 +6804,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc2, HW_serie_2, HW_info2,
                             ADF_desc2, leveldiff2, diff_graph2, ADF_info2,
                             level_diff_state_2,
-                            ACF_desc2, ACF_graph2, ACF_info2,
-                            PACF_graph2, PACF_info2,
+                            ACF_desc2, ACF_error2, ACF_serie_2,
                             ARIMA_p_2, ARIMA_q_2,
                             ARIMA_desc2, ARIMA_info2, ARIMA_serie_2,
                             Fourier_desc2, Fourier_series_orig, Fourier_series_dif,
@@ -6715,8 +6824,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc3, HW_serie_3, HW_info3,
                             ADF_desc3, leveldiff3, diff_graph3, ADF_info3,
                             level_diff_state_3,
-                            ACF_desc3, ACF_graph3, ACF_info3,
-                            PACF_graph3, PACF_info3,
+                            ACF_desc3, ACF_error3, ACF_serie_3,
                             ARIMA_p_3, ARIMA_q_3,
                             ARIMA_desc3, ARIMA_info3, ARIMA_serie_3,
                             Fourier_desc3, Fourier_series_orig, Fourier_series_dif,
@@ -6736,8 +6844,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc1, HW_serie_1, HW_info1,
                             ADF_desc1, leveldiff1, diff_graph1, ADF_info1,
                             level_diff_state_1,
-                            ACF_desc1, ACF_graph1, ACF_info1,
-                            PACF_graph1, PACF_info1,
+                            ACF_desc1, ACF_error1, ACF_serie_1,
                             ARIMA_p_1, ARIMA_q_1,
                             ARIMA_desc1, ARIMA_info1, ARIMA_serie_1,
                             Fourier_desc1, Fourier_series_orig, Fourier_series_dif,
@@ -6757,8 +6864,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc2, HW_serie_2, HW_info2,
                             ADF_desc2, leveldiff2, diff_graph2, ADF_info2,
                             level_diff_state_2,
-                            ACF_desc2, ACF_graph2, ACF_info2,
-                            PACF_graph2, PACF_info2,
+                            ACF_desc2, ACF_error2, ACF_serie_2,
                             ARIMA_p_2, ARIMA_q_2,
                             ARIMA_desc2, ARIMA_info2, ARIMA_serie_2,
                             Fourier_desc2, Fourier_series_orig, Fourier_series_dif,
@@ -6778,8 +6884,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc3, HW_serie_3, HW_info3,
                             ADF_desc3, leveldiff3, diff_graph3, ADF_info3,
                             level_diff_state_3, 
-                            ACF_desc3, ACF_graph3, ACF_info3,
-                            PACF_graph3, PACF_info3,
+                            ACF_desc3, ACF_error3, ACF_serie_3,
                             ARIMA_p_3, ARIMA_q_3,
                             ARIMA_desc3, ARIMA_info3, ARIMA_serie_3,
                             Fourier_desc3, Fourier_series_orig, Fourier_series_dif,
@@ -6799,8 +6904,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc1, HW_serie_1, HW_info1,
                             ADF_desc1, leveldiff1, diff_graph1, ADF_info1,
                             level_diff_state_1,
-                            ACF_desc1, ACF_graph1, ACF_info1,
-                            PACF_graph1, PACF_info1,
+                            ACF_desc1, ACF_error1, ACF_serie_1,
                             ARIMA_p_1, ARIMA_q_1,
                             ARIMA_desc1, ARIMA_info1, ARIMA_serie_1,
                             Fourier_desc1, Fourier_series_orig, Fourier_series_dif,
@@ -6820,8 +6924,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc2, HW_serie_2, HW_info2,
                             ADF_desc2, leveldiff2, diff_graph2, ADF_info2,
                             level_diff_state_2,
-                            ACF_desc2, ACF_graph2, ACF_info2,
-                            PACF_graph2, PACF_info2,
+                            ACF_desc2, ACF_error2, ACF_serie_2,
                             ARIMA_p_2, ARIMA_q_2,
                             ARIMA_desc2, ARIMA_info2, ARIMA_serie_2,
                             Fourier_desc2, Fourier_series_orig, Fourier_series_dif,
@@ -6841,8 +6944,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc3, HW_serie_3, HW_info3,
                             ADF_desc3, leveldiff3, diff_graph3, ADF_info3,
                             level_diff_state_3, 
-                            ACF_desc3, ACF_graph3, ACF_info3,
-                            PACF_graph3, PACF_info3,
+                            ACF_desc3, ACF_error3, ACF_serie_3,
                             ARIMA_p_3, ARIMA_q_3,
                             ARIMA_desc3, ARIMA_info3, ARIMA_serie_3,
                             Fourier_desc3, Fourier_series_orig, Fourier_series_dif,
@@ -6887,7 +6989,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
             leveldiff1.change(
                 fn = tab_ST_on_level_change,
                 outputs = [diff_graph1, ADF_info1, level_diff_state_1,
-                            ACF_graph1, ACF_info1, PACF_graph1, PACF_info1,
+                            ACF_error1, ACF_serie_1,
                             ARIMA_p_1, ARIMA_q_1,
                             ARIMA_info1, ARIMA_serie_1,
                             Fourier_series_orig, Fourier_series_dif,
@@ -6897,7 +6999,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
             leveldiff2.change(
                 fn = tab_ST_on_level_change,
                 outputs = [diff_graph2, ADF_info2, level_diff_state_2,
-                            ACF_graph2, ACF_info2, PACF_graph2, PACF_info2,
+                            ACF_error2, ACF_serie_2,
                             ARIMA_p_2, ARIMA_q_2,
                             ARIMA_info2, ARIMA_serie_2,
                             Fourier_series_orig, Fourier_series_dif,
@@ -6907,7 +7009,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
             leveldiff3.change(
                 fn = tab_ST_on_level_change,
                 outputs = [diff_graph3, ADF_info3, level_diff_state_3,
-                            ACF_graph3, ACF_info3, PACF_graph3, PACF_info3,
+                            ACF_error3, ACF_serie_3,
                             ARIMA_p_3, ARIMA_q_3,
                             ARIMA_info3, ARIMA_serie_3,
                             Fourier_series_orig, Fourier_series_dif,
@@ -6926,7 +7028,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc1, HW_serie_1, HW_info1,
                             ADF_desc1, leveldiff1, diff_graph1, ADF_info1,
                             level_diff_state_1,
-                            ACF_desc1, ACF_graph1, ACF_info1,
+                            ACF_desc1, ACF_error1, ACF_serie_1,
                             PACF_graph1, PACF_info1,
                             ARIMA_p_1, ARIMA_q_1,
                             ARIMA_desc1, ARIMA_info1, ARIMA_serie_1,
@@ -6946,8 +7048,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc2, HW_serie_2, HW_info2,
                             ADF_desc2, leveldiff2, diff_graph2, ADF_info2,
                             level_diff_state_2,
-                            ACF_desc2, ACF_graph2, ACF_info2,
-                            PACF_graph2, PACF_info2,
+                            ACF_desc2, ACF_error2, ACF_serie_2,
                             ARIMA_p_2, ARIMA_q_2,
                             ARIMA_desc2, ARIMA_info2, ARIMA_serie_2,
                             Fourier_desc2, Fourier_series_orig, Fourier_series_dif,
@@ -6966,8 +7067,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc3, HW_serie_3, HW_info3,
                             ADF_desc3, leveldiff3, diff_graph3, ADF_info3,
                             level_diff_state_3, 
-                            ACF_desc3, ACF_graph3, ACF_info3,
-                            PACF_graph3, PACF_info3,
+                            ACF_desc3, ACF_error3, ACF_serie_3,
                             ARIMA_p_3, ARIMA_q_3,
                             ARIMA_desc3, ARIMA_info3, ARIMA_serie_3,
                             Fourier_desc3, Fourier_series_orig, Fourier_series_dif,
@@ -6986,8 +7086,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc1, HW_serie_1, HW_info1,
                             ADF_desc1, leveldiff1, diff_graph1, ADF_info1,
                             level_diff_state_1,
-                            ACF_desc1, ACF_graph1, ACF_info1,
-                            PACF_graph1, PACF_info1,
+                            ACF_desc1, ACF_error1, ACF_serie_1,
                             ARIMA_p_1, ARIMA_q_1,
                             ARIMA_desc1, ARIMA_info1, ARIMA_serie_1,
                             Fourier_desc1, Fourier_series_orig, Fourier_series_dif,
@@ -7006,8 +7105,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc2, HW_serie_2, HW_info2,
                             ADF_desc2, leveldiff2, diff_graph2, ADF_info2,
                             level_diff_state_2,
-                            ACF_desc2, ACF_graph2, ACF_info2,
-                            PACF_graph2, PACF_info2,
+                            ACF_desc2, ACF_error2, ACF_serie_2,
                             ARIMA_p_2, ARIMA_q_2,
                             ARIMA_desc2, ARIMA_info2, ARIMA_serie_2,
                             Fourier_desc2, Fourier_series_orig, Fourier_series_dif,
@@ -7026,8 +7124,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc3, HW_serie_3, HW_info3,
                             ADF_desc3, leveldiff3, diff_graph3, ADF_info3,
                             level_diff_state_3, 
-                            ACF_desc3, ACF_graph3, ACF_info3,
-                            PACF_graph3, PACF_info3,
+                            ACF_desc3, ACF_error3, ACF_serie_3,
                             ARIMA_p_3, ARIMA_q_3,
                             ARIMA_desc3, ARIMA_info3, ARIMA_serie_3,
                             Fourier_desc3, Fourier_series_orig, Fourier_series_dif,
@@ -7046,8 +7143,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc1, HW_serie_1, HW_info1,
                             ADF_desc1, leveldiff1, diff_graph1, ADF_info1,
                             level_diff_state_1,
-                            ACF_desc1, ACF_graph1, ACF_info1,
-                            PACF_graph1, PACF_info1,
+                            ACF_desc1, ACF_error1, ACF_serie_1,
                             ARIMA_p_1, ARIMA_q_1,
                             ARIMA_desc1, ARIMA_info1, ARIMA_serie_1,
                             Fourier_desc1, Fourier_series_orig, Fourier_series_dif,
@@ -7066,8 +7162,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc2, HW_serie_2, HW_info2,
                             ADF_desc2, leveldiff2, diff_graph2, ADF_info2,
                             level_diff_state_2,
-                            ACF_desc2, ACF_graph2, ACF_info2,
-                            PACF_graph2, PACF_info2,
+                            ACF_desc2, ACF_error2, ACF_serie_2,
                             ARIMA_p_2, ARIMA_q_2,
                             ARIMA_desc2, ARIMA_info2, ARIMA_serie_2,
                             Fourier_desc2, Fourier_series_orig, Fourier_series_dif,
@@ -7086,8 +7181,7 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_desc3, HW_serie_3, HW_info3,
                             ADF_desc3, leveldiff3, diff_graph3, ADF_info3,
                             level_diff_state_3, 
-                            ACF_desc3, ACF_graph3, ACF_info3,
-                            PACF_graph3, PACF_info3,
+                            ACF_desc3, ACF_error3, ACF_serie_3,
                             ARIMA_p_3, ARIMA_q_3,
                             ARIMA_desc3, ARIMA_info3, ARIMA_serie_3,
                             Fourier_desc3, Fourier_series_orig, Fourier_series_dif,
@@ -7121,7 +7215,6 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                             HW_graph3c, HW_graph3d, HW_info3]
             )
 
-
             ADF_button.click(
                 fn = tab_ST_diff_ADF_all,
                 inputs = [dataset_filter_state_1, dataset_filter_state_2, dataset_filter_state_3,
@@ -7136,9 +7229,9 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
                 fn = tab_ST_ACF_PACF_all,
                 inputs = [dataset_diff_state_1, dataset_diff_state_2, dataset_diff_state_3,
                             var1, var2, var3, level_diff_state_1, level_diff_state_2, level_diff_state_3],
-                outputs = [ACF_graph1, ACF_info1, ARIMA_q_1,
-                            ACF_graph2, ACF_info2, ARIMA_q_2,
-                            ACF_graph3, ACF_info3, ARIMA_q_3,
+                outputs = [ACF_error1, ACF_serie_1, ACF_graph1, ACF_info1, ARIMA_q_1,
+                            ACF_error2, ACF_serie_2, ACF_graph2, ACF_info2, ARIMA_q_2,
+                            ACF_error3, ACF_serie_3, ACF_graph3, ACF_info3, ARIMA_q_3,
                             PACF_graph1, PACF_info1, ARIMA_p_1,
                             PACF_graph2, PACF_info2, ARIMA_p_2,
                             PACF_graph3, PACF_info3, ARIMA_p_3]
@@ -7362,6 +7455,26 @@ with gr.Blocks(title="Análisis de Cultivos") as app:
             HW_btn_cerrar_graph.click(fn = lambda: gr.update(visible=False), 
                                         inputs = None, outputs = HW_modal_graph)
             
+
+            ACF_btn_help1.click(fn = lambda: gr.update(visible=True),
+                                        inputs = None, outputs = ACF_modal_help)
+            ACF_btn_help2.click(fn = lambda: gr.update(visible=True),
+                                        inputs = None, outputs = ACF_modal_help)
+            ACF_btn_help3.click(fn = lambda: gr.update(visible=True),
+                                        inputs = None, outputs = ACF_modal_help)
+            ACF_btn_cerrar_help.click(fn = lambda: gr.update(visible=False), 
+                                        inputs = None, outputs = ACF_modal_help)
+
+            PACF_btn_help1.click(fn = lambda: gr.update(visible=True),
+                                        inputs = None, outputs = PACF_modal_help)
+            PACF_btn_help2.click(fn = lambda: gr.update(visible=True),
+                                        inputs = None, outputs = PACF_modal_help)
+            PACF_btn_help3.click(fn = lambda: gr.update(visible=True),
+                                        inputs = None, outputs = PACF_modal_help)
+            PACF_btn_cerrar_help.click(fn = lambda: gr.update(visible=False), 
+                                        inputs = None, outputs = PACF_modal_help)
+
+
             ARIMA_btn_graph1.click(fn = tab_ST_ARIMA_graf,
                                         inputs = [dataset_filter_state_1, var1, 
                                                   ARIMA_p_1, level_diff_state_1, ARIMA_q_1],
